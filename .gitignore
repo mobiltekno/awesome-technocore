@@ -1,0 +1,7 @@
+.env
+swarm_seeds.json
+SWARM_WALLETS.md
+AGENT_INFO.md
+*.log
+__pycache__/
+.venv/
