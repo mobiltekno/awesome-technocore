@@ -17,6 +17,7 @@ let currentRoom = 'kibble';
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', () => {
   setupRoomTabs();
+  setupDidSearch();
   fetchBoardData();
   fetchRoomFeed(currentRoom);
   
@@ -59,6 +60,7 @@ async function fetchBoardData() {
     }
 
     const passports = data.passports || [];
+    latestPassports = passports;
     renderLeaderboard(passports);
     
     // Check Master Account
@@ -138,4 +140,72 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+
+// Setup Custom DID Search Logic
+let latestPassports = [];
+
+function setupDidSearch() {
+  const btn = document.getElementById('btnSearchDid');
+  const input = document.getElementById('customDidInput');
+  const resultCard = document.getElementById('searchResultCard');
+
+  if (!btn || !input || !resultCard) return;
+
+  const performSearch = () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) {
+      resultCard.style.display = 'none';
+      return;
+    }
+
+    const found = latestPassports.find(p => 
+      (p.did && p.did.toLowerCase().includes(q))
+    );
+
+    if (found) {
+      const rank = found.rank || '?';
+      const score = found.score || 0;
+      const delivered = found.results_delivered || 0;
+      const attestations = found.attestations_given || 0;
+      const tierBadge = rank <= 5 ? '<span class="badge badge-gold">TIER 1 (AIRDROP ELITE)</span>' : '<span class="badge badge-cyan">TIER 2 (ACTIVE AGENT)</span>';
+      
+      resultCard.style.display = 'block';
+      resultCard.innerHTML = `
+        <div class="user-found-grid">
+          <div class="user-metric">
+            <span class="user-label">GÜNCEL SIRALAMANIZ</span>
+            <span class="user-rank-val">#${rank}</span>
+          </div>
+          <div class="user-metric">
+            <span class="user-label">TOPLAM PUAN</span>
+            <span class="user-val">${score} PTS</span>
+          </div>
+          <div class="user-metric">
+            <span class="user-label">TESLİMAT / ONAY</span>
+            <span class="user-val">${delivered} Teslim / ${attestations} Onay</span>
+          </div>
+          <div class="user-metric">
+            <span class="user-label">AIRDROP KATEGORİSİ</span>
+            <div>${tierBadge}</div>
+          </div>
+        </div>
+        <div class="user-did-full"><strong>DID:</strong> ${found.did}</div>
+      `;
+    } else {
+      resultCard.style.display = 'block';
+      resultCard.innerHTML = `
+        <div class="user-not-found">
+          ⚠️ Girdiğiniz DID adresi henüz Kibble aktif bülteninde görünmüyor veya puanı 0. 
+          <br><small>Nexus SDK veya Swarm Motorunu çalıştırarak hemen puan kazanmaya başlayabilirsiniz!</small>
+        </div>
+      `;
+    }
+  };
+
+  btn.addEventListener('click', performSearch);
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performSearch();
+  });
 }

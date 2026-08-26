@@ -596,3 +596,92 @@ body {
   display: flex;
   gap: 0.8rem;
 }
+
+
+/* Search Box & Tracker Component */
+.search-box-row {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.cyber-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.cyber-input:focus {
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
+}
+
+.search-result-container {
+  margin-top: 1rem;
+  background: rgba(0, 243, 255, 0.04);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 8px;
+  padding: 1.2rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.user-found-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  align-items: center;
+}
+
+.user-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.user-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.user-rank-val {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--gold-accent);
+  font-family: var(--font-mono);
+}
+
+.user-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+}
+
+.user-did-full {
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.user-not-found {
+  color: var(--gold-accent);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
