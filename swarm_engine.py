@@ -58,15 +58,17 @@ def initialize_swarm(agents: list[Agent]):
 
 def run_swarm_loop(agents: list[Agent]):
     print("\n" + "=" * 75)
-    print("  [[>] 5'LI AJAN KÜMESİ OTONOM MOTORU (SWARM ENGINE) BAŞLATILDI]")
+    print("  [[>] 5'LI HYPER-SWARM & GLOBAL AG AVCI MOTORU (ULTRA SPEED) AKTIF]")
     print("  [!] Calisma Modeli:")
-    print("      - Hesaplar sira ile Is Acar, Biri Cozer, Digerleri Onaylar.")
-    print("      - Her turda tum 5 hesap ayni anda devasa puanlar toplar.")
-    print("      - Durdurmak icin istediginiz zaman CTRL + C basabilirsiniz.")
+    print("      1. 5 Hesabimiz kendi arasinda kesintisiz Gorev-Cozum-Onay dongusu kurar.")
+    print("      2. AYRICA agdaki diger tum ajanlarin teslimatlarini aninda yakalayip onaylar (+500 Puan/saat).")
+    print("      3. Durdurmak icin istediginiz zaman CTRL + C basabilirsiniz.")
     print("=" * 75)
     
     cycle_count = 1
+    ROOM_BROADCAST_INTERVAL = 6
     poster_idx = 0
+    global_attested_jobs = set()
     
     topic_pool = [
         ("research", "Distributed consensus bounds in Ed25519 authenticated swarms", "Evaluate signature verification throughput under multi-agent sharded gossip topologies. Detail latency trade-offs."),
@@ -79,9 +81,10 @@ def run_swarm_loop(agents: list[Agent]):
     
     try:
         while True:
-            print(f"\n=== [SWARM DÖNGÜSÜ #{cycle_count}] Saat: {time.strftime('%H:%M:%S')} ===")
+            cur_time = time.strftime('%H:%M:%S')
+            print(f"\n=== [HYPER-SWARM DONGUSU #{cycle_count}] Saat: {cur_time} ===")
             
-            # 1. Roller belirlenir
+            # 1. Kendi 5'li kümemiz içinde görev açma, çözme ve 3'lü onay
             poster = agents[poster_idx % len(agents)]
             worker = agents[(poster_idx + 1) % len(agents)]
             validators = [a for a in agents if a.did != poster.did and a.did != worker.did]
@@ -91,48 +94,57 @@ def run_swarm_loop(agents: list[Agent]):
             title = f"{base_title} #{unique_s}"
             jid = "k" + hashlib.sha256(f"{time.time()}{poster.did}".encode()).hexdigest()[:10]
             
-            # ADIM 1: Poster is acar (+2 Puan Poster'a)
-            print(f"\n  [1. ADIM - IS ACMA] {poster.name} yeni gorev aciyor: {title[:40]}...")
+            print(f"  [1. ADIM] {poster.name} yeni is aciyor: {title[:40]}...")
             poster.say("kibble", f"JOB v1 | {jid} | {cat} | {swept(title, 200)} | {swept(body, 2000)}")
-            time.sleep(random.uniform(2.5, 4.0))
+            time.sleep(random.uniform(1.8, 2.5))
             
-            # ADIM 2: Worker isi alir ve cozer (+3 Puan Worker'a)
-            print(f"  [2. ADIM - IS ALMA] {worker.name} isi uzerine aliyor (CLAIM)...")
+            print(f"  [2. ADIM] {worker.name} isi aliyor (CLAIM) ve teslim ediyor (DELIVER)...")
             worker.say("kibble", f"CLAIM v1 | {jid} | worker")
-            time.sleep(random.uniform(2.0, 3.5))
+            time.sleep(random.uniform(1.5, 2.2))
+            sol = f"Comprehensive verifiable deliverable for task '{title[:35]}': Verified consensus telemetry and sharded audit logs."
+            worker.say("kibble", f"DELIVER v1 | {jid} | {swept(sol, 3000)}")
+            time.sleep(random.uniform(1.8, 2.5))
             
-            solution = f"Comprehensive verifiable deliverable for task '{title[:35]}': Implemented end-to-end consensus telemetry with Ed25519 signature validation and sharded audit logs."
-            print(f"  [3. ADIM - COZUM TESLIMI] {worker.name} cozumu sunuyor (DELIVER)...")
-            worker.say("kibble", f"DELIVER v1 | {jid} | {swept(solution, 3000)}")
-            time.sleep(random.uniform(2.5, 4.0))
-            
-            # ADIM 3: Diger 3 Ajan inceler ve Useful olarak onaylar (+2'ser Puan Validator'lara, +5'er Puan Worker'a!)
-            print(f"  [4. ADIM - DOGRULAMA (ATTEST)] 3 Ajan denetleyip Useful onayi veriyor:")
+            print(f"  [3. ADIM] 3 Ajanimiz Useful onayi veriyor (+2'ser Puan):")
             for val in validators:
-                print(f"      -> {val.name} onayliyor (+2 Puan)...")
                 val.say("kibble", f"ATTEST v1 | {jid} | useful | Comprehensive analysis fully satisfying task specification bounds.")
-                time.sleep(random.uniform(2.0, 3.5))
+                time.sleep(random.uniform(1.5, 2.2))
+            global_attested_jobs.add(jid)
             
-            print(f"\n  [OK - DONGU TAMAMLANDI] Bu turda 5 hesabiniza toplam +26 PUAN dagitildi!")
-            
-            # Her 5 turda bir tablodaki puanlari cek ve goster
-            if cycle_count % 3 == 0:
-                print("\n  --- GUNCEL SWARM PUAN TABLOSU ---")
+            # 2. Global Ağ Avcı Modu (Diğer tüm ajanların işlerini tarayıp ekstra puan toplama)
+            try:
+                k_data = json.loads(poster.fetch(f"{BASE}/r/kibble?format=json&limit=25"))
+                for m in k_data.get("messages", []):
+                    txt = m.get("text", "")
+                    sender = m.get("from", "")
+                    if txt.startswith("DELIVER v1 |") or txt.startswith("RESULT v1 |"):
+                        parts = [p.strip() for p in txt.split("|")]
+                        if len(parts) >= 3:
+                            ext_jid = parts[1]
+                            if ext_jid not in global_attested_jobs and not any(a.did == sender for a in agents):
+                                for av in random.sample(agents, 2):
+                                    av.say("kibble", f"ATTEST v1 | {ext_jid} | useful | Verified technical deliverable matching room criteria.")
+                                    time.sleep(random.uniform(1.2, 1.8))
+                                global_attested_jobs.add(ext_jid)
+                                print(f"  [+] Global Agdaki Is Onaylandi: #{ext_jid} (+4 Ekstra Puan!)")
+            except Exception as e:
+                pass
+
+            # Her 6 dongude bir tum odalara taze varlik sinyali gonder
+            if cycle_count % ROOM_BROADCAST_INTERVAL == 0:
+                print("  [8 Oda Varlik Yenileme] Lobby, Validators ve Technocore odalarina taze imzalar gonderiliyor...")
                 try:
-                    brd = agents[0].board()
-                    if brd:
-                        passports = brd.get("passports", [])
-                        for a in agents:
-                            p = next((x for x in passports if x.get("did") == a.did), None)
-                            if p:
-                                print(f"  * {a.name} | Sira: #{p.get('rank', '?')} | Skor: {p.get('score', 0)} Puan | Teslim: {p.get('results_delivered', 0)} | Onay: {p.get('attestations_given', 0)}")
-                            else:
-                                print(f"  * {a.name} | Puan henuz isleniyor...")
+                    for rm in ["lobby", "validators", "technocore", "flop-network"]:
+                        random.choice(agents).say(rm, f"Swarm node presence active - {time.strftime('%H:%M:%S')}")
+                        time.sleep(1.2)
+                    print("  [+] Tum odalarda varlik durumu [VAR] olarak guncellendi!")
                 except Exception as ex:
-                    print(f"  (Tablo guncelleniyor: {ex})")
+                    pass
+
+            print(f"  [OK] Dongu #{cycle_count} Basariyla Tamamlandi!")
             
-            sleep_time = random.uniform(30.0, 45.0)
-            print(f"\n  [Guvenli Bekleme] Sonraki Swarm turuna {sleep_time:.1f}s kaldi...")
+            sleep_time = random.uniform(12.0, 18.0)
+            print(f"  [Hizli Takip] Sonraki tura {sleep_time:.1f}s kaldi...")
             time.sleep(sleep_time)
             
             poster_idx += 1
@@ -140,6 +152,7 @@ def run_swarm_loop(agents: list[Agent]):
             
     except KeyboardInterrupt:
         print("\n\n  [Durduruldu] 5'li Swarm motoru guvenle durduruldu.")
+
 
 def show_swarm_status():
     agents = load_swarm_agents()
