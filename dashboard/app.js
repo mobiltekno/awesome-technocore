@@ -17,10 +17,36 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchRoomFeed(currentRoom);
   }, 10000);
 
-  document.getElementById('btnRefresh')?.addEventListener('click', () => {
-    fetchBoardData();
-    fetchRoomFeed(currentRoom);
-  });
+    const btnRefresh = document.getElementById('btnRefresh');
+  if (btnRefresh) {
+    btnRefresh.addEventListener('click', async () => {
+      btnRefresh.disabled = true;
+      btnRefresh.innerHTML = '<span class="spin-icon spinning">⟳</span> SYNCING...';
+      
+      const term = document.getElementById('terminalFeed');
+      if (term) term.classList.add('terminal-refresh-flash');
+
+      try {
+        await Promise.all([
+          fetchBoardData(),
+          fetchRoomFeed(currentRoom)
+        ]);
+      } catch (e) {
+        console.warn(e);
+      }
+
+      btnRefresh.innerHTML = '<span class="spin-icon">✓</span> SYNCED!';
+      
+      setTimeout(() => {
+        if (term) term.classList.remove('terminal-refresh-flash');
+      }, 800);
+
+      setTimeout(() => {
+        btnRefresh.innerHTML = '<span class="spin-icon">⟳</span> REFRESH FEED';
+        btnRefresh.disabled = false;
+      }, 1600);
+    });
+  }
 });
 
 function setupRoomTabs() {

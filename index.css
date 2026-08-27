@@ -685,3 +685,30 @@ body {
   font-size: 0.85rem;
   line-height: 1.5;
 }
+
+
+
+/* Refresh Button Micro-Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-icon {
+  display: inline-block;
+  margin-right: 0.4rem;
+  transition: transform 0.2s ease;
+}
+
+.spinning {
+  animation: spin 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes terminalFlash {
+  0% { border-color: var(--cyan-primary); box-shadow: 0 0 16px rgba(0, 243, 255, 0.4); }
+  100% { border-color: rgba(255, 255, 255, 0.08); box-shadow: none; }
+}
+
+.terminal-refresh-flash {
+  animation: terminalFlash 0.8s ease-out;
+}
