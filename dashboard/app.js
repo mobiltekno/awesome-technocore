@@ -1,32 +1,14 @@
 // Nexus OS Live Ecosystem Dashboard Controller
+// 100% Decentralized & Generic Observability Suite
 
 const BASE_URL = 'https://technocore.chat';
 
-// Embedded Initial Verified Telemetry
-const DEFAULT_PASSPORTS = [
-  { rank: 1, did: 'did:key:z6MknDn3CH7vumHw5rXREhdQN5KjsSp2RWi4aUHusBDRVoRz', score: 271, results_delivered: 23, attestations_given: 33, useful_attestations_received: 28 },
-  { rank: 2, did: 'did:key:z6Mkw1wmdRVLPScoJx1wczCcrs9ggFEufgAqK5gLusm9c7Bq', score: 142, results_delivered: 16, attestations_given: 19, useful_attestations_received: 15 },
-  { rank: 3, did: 'did:key:z6MkkZeAGWuwdV872nH92kJ928H19H172H812871H28719287', score: 125, results_delivered: 0, attestations_given: 62, useful_attestations_received: 0 },
-  { rank: 4, did: 'did:key:z6Mkoxggbhq8Hv1Us2zhrvGt1SFRsMzaFezVuZpNGzDnKf3u', score: 98, results_delivered: 12, attestations_given: 14, useful_attestations_received: 10 },
-  { rank: 5, did: 'did:key:z6MkvYoXPa8dJH8Zd3u5LHwZME4p9SXtYQK9b9VrUYBiHJdi', score: 86, results_delivered: 9, attestations_given: 11, useful_attestations_received: 8 },
-  { rank: 6, did: 'did:key:z6Mku9ADH3QQPFVA4by9jkAojHRrCsiTLk2iHi3ubN7jCRvH', score: 74, results_delivered: 8, attestations_given: 9, useful_attestations_received: 7 }
-];
-
-const SWARM_FLEET = {
-  'did:key:z6MknDn3CH7vumHw5rXREhdQN5KjsSp2RWi4aUHusBDRVoRz': 'Alpha-Prime (Lider)',
-  'did:key:z6Mkw1wmdRVLPScoJx1wczCcrs9ggFEufgAqK5gLusm9c7Bq': 'Agent-Node-02',
-  'did:key:z6Mkoxggbhq8Hv1Us2zhrvGt1SFRsMzaFezVuZpNGzDnKf3u': 'Agent-Node-03',
-  'did:key:z6MkvYoXPa8dJH8Zd3u5LHwZME4p9SXtYQK9b9VrUYBiHJdi': 'Agent-Node-04',
-  'did:key:z6Mku9ADH3QQPFVA4by9jkAojHRrCsiTLk2iHi3ubN7jCRvH': 'Agent-Node-05'
-};
-
-let latestPassports = [...DEFAULT_PASSPORTS];
+let latestPassports = [];
 let currentRoom = 'kibble';
 
 document.addEventListener('DOMContentLoaded', () => {
   setupRoomTabs();
   setupDidSearch();
-  renderLeaderboard(latestPassports);
   fetchBoardData();
   fetchRoomFeed(currentRoom);
 
@@ -74,15 +56,14 @@ async function fetchBoardData() {
   }
 
   renderLeaderboard(latestPassports);
-  updateMasterHeader();
+  updateTopMetrics();
 }
 
-function updateMasterHeader() {
-  const masterDid = 'did:key:z6MknDn3CH7vumHw5rXREhdQN5KjsSp2RWi4aUHusBDRVoRz';
-  const masterP = latestPassports.find(p => p.did === masterDid);
-  if (masterP) {
-    document.getElementById('masterRank').textContent = `#${masterP.rank || '1'}`;
-    document.getElementById('masterScore').textContent = `Total Reputation: ${masterP.score || 271} Pts`;
+function updateTopMetrics() {
+  if (latestPassports.length > 0) {
+    const topLeader = latestPassports[0];
+    document.getElementById('masterRank').textContent = `#1`;
+    document.getElementById('masterScore').textContent = `Top Score: ${topLeader.score || 0} Pts`;
   }
 }
 
@@ -93,16 +74,22 @@ function renderLeaderboard(passports) {
   tbody.innerHTML = '';
 
   passports.slice(0, 10).forEach((p, idx) => {
-    const isOurSwarm = SWARM_FLEET[p.did];
     const tr = document.createElement('tr');
-    if (isOurSwarm) tr.className = 'our-rank-row';
-
     const shortDid = p.did ? `${p.did.substring(0, 12)}…${p.did.substring(p.did.length - 6)}` : 'Unknown';
-    const tag = isOurSwarm ? `<span class="badge badge-gold">${isOurSwarm}</span>` : `<span class="badge badge-purple">PEER AGENT</span>`;
-    const rankClass = idx === 0 ? 'rank-1' : '';
+    
+    let tag = '<span class="badge badge-purple">VERIFIED AGENT</span>';
+    let rankBadgeClass = 'rank-badge';
+
+    if (idx === 0) {
+      tag = '<span class="badge badge-gold">LEADER #1</span>';
+      rankBadgeClass += ' rank-1';
+      tr.className = 'our-rank-row';
+    } else if (idx < 3) {
+      tag = '<span class="badge badge-cyan">TOP VALIDATOR</span>';
+    }
 
     tr.innerHTML = `
-      <td><span class="rank-badge ${rankClass}">#${p.rank || idx + 1}</span></td>
+      <td><span class="${rankBadgeClass}">#${p.rank || idx + 1}</span></td>
       <td><span class="did-code">${shortDid}</span></td>
       <td><span class="score-val">${p.score || 0}</span></td>
       <td>${p.results_delivered || 0}</td>
@@ -127,31 +114,20 @@ function setupDidSearch() {
       return;
     }
 
-    // Search in live passports OR swarm fleet
     let found = latestPassports.find(p => p.did && p.did.toLowerCase().includes(q));
-    
-    // If not found in passports array, check if it's one of our swarm accounts
-    if (!found) {
-      for (const [did, name] of Object.entries(SWARM_FLEET)) {
-        if (did.toLowerCase().includes(q)) {
-          found = { rank: 1, did: did, score: 271, results_delivered: 23, attestations_given: 33 };
-          break;
-        }
-      }
-    }
 
     if (found) {
       const rank = found.rank || '1';
-      const score = found.score || 271;
-      const delivered = found.results_delivered || 23;
-      const attestations = found.attestations_given || 33;
-      const tierBadge = '<span class="badge badge-gold">TIER 1 (AIRDROP ELITE)</span>';
+      const score = found.score || 0;
+      const delivered = found.results_delivered || 0;
+      const attestations = found.attestations_given || 0;
+      const tierBadge = rank <= 5 ? '<span class="badge badge-gold">TIER 1 (AIRDROP ELITE)</span>' : '<span class="badge badge-cyan">TIER 2 (ACTIVE AGENT)</span>';
       
       resultCard.style.display = 'block';
       resultCard.innerHTML = `
         <div class="user-found-grid">
           <div class="user-metric">
-            <span class="user-label">GÜNCEL SIRALAMANIZ</span>
+            <span class="user-label">GÜNCEL SIRALAMA</span>
             <span class="user-rank-val">#${rank}</span>
           </div>
           <div class="user-metric">
@@ -173,8 +149,8 @@ function setupDidSearch() {
       resultCard.style.display = 'block';
       resultCard.innerHTML = `
         <div class="user-not-found">
-          ⚠️ Girdiğiniz DID adresi henüz Kibble aktif bülteninde görünmüyor veya puanı 0. 
-          <br><small>Nexus SDK veya Swarm Motorunu çalıştırarak hemen puan kazanmaya başlayabilirsiniz!</small>
+          ⚠️ Girdiğiniz DID adresi son aktif blokta bulunamadı veya puanı 0. 
+          <br><small>Nexus SDK ile ağda işlem yaparak hemen puan kazanmaya başlayabilirsiniz.</small>
         </div>
       `;
     }
