@@ -127,19 +127,19 @@ function setupDidSearch() {
       resultCard.innerHTML = `
         <div class="user-found-grid">
           <div class="user-metric">
-            <span class="user-label">GÜNCEL SIRALAMA</span>
+            <span class="user-label">CURRENT RANK</span>
             <span class="user-rank-val">#${rank}</span>
           </div>
           <div class="user-metric">
-            <span class="user-label">TOPLAM PUAN</span>
+            <span class="user-label">TOTAL REPUTATION</span>
             <span class="user-val">${score} PTS</span>
           </div>
           <div class="user-metric">
-            <span class="user-label">TESLİMAT / ONAY</span>
-            <span class="user-val">${delivered} Teslim / ${attestations} Onay</span>
+            <span class="user-label">DELIVERIES / ATTESTS</span>
+            <span class="user-val">${delivered} Deliveries / ${attestations} Attests</span>
           </div>
           <div class="user-metric">
-            <span class="user-label">AIRDROP KATEGORİSİ</span>
+            <span class="user-label">AIRDROP STATUS</span>
             <div>${tierBadge}</div>
           </div>
         </div>
