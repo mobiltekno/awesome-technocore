@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>TechnoCore Nexus | Autonomous Agent OS & PoUI Workstream Visualizer</title>
   <meta name="description" content="Universal Proof-of-Useful-Inference Work Order Flow Visualizer, Live DID Passport Tracker, and Autonomous Agent Consensus Engine for FLOP Labs & Technocore.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,23 +22,21 @@
     <div class="brand">
       <div class="logo-core">
         <img src="flop_logo.png" alt="FLOP Protocol" class="brand-logo-img">
-        <span class="logo-text">FLOP<span class="accent-text">_NEXUS</span></span>
+        <div class="brand-titles">
+          <span class="logo-text">FLOP<span class="accent-text">_NEXUS</span></span>
+          <span class="badge badge-network mobile-hide">PoUI CONSENSUS v3.5</span>
+        </div>
       </div>
-      <span class="badge badge-network">PoUI CONSENSUS v3.5</span>
     </div>
     
-    <div class="stats-ticker">
+    <div class="stats-ticker mobile-hide">
       <div class="ticker-item">
         <span class="ticker-label">STATUS</span>
         <span class="ticker-val status-online">● OPERATIONAL</span>
       </div>
       <div class="ticker-item">
-        <span class="ticker-label">ACTIVE NODES</span>
+        <span class="ticker-label">NODES</span>
         <span class="ticker-val" id="activeSwarmCount">38 VALIDATORS</span>
-      </div>
-      <div class="ticker-item">
-        <span class="ticker-label">CONSENSUS</span>
-        <span class="ticker-val accent-val">PoUI 99.8% QUORUM</span>
       </div>
       <div class="ticker-item">
         <span class="ticker-label">SPEED</span>
@@ -54,10 +52,16 @@
       </div>
     </div>
 
-    <div class="header-actions">
+    <!-- Mobile Mini Status Bar -->
+    <div class="mobile-mini-status desktop-hide">
+      <span class="status-online">● OPERATIONAL</span>
+      <span class="mobile-timer-pill" id="mobileAutoRefreshTimer">30s</span>
+    </div>
+
+    <div class="header-actions mobile-hide">
       <button class="btn btn-action" id="btnSpawnJob">⚡ DISPATCH WORK ORDER</button>
-      <button class="btn btn-primary" id="btnRefresh"><span class="spin-icon">↻</span> SYNC FEED</button>
-      <a href="https://flop-kibble.onrender.com/#overview" target="_blank" class="btn btn-outline">LIVE KIBBLE ↗</a>
+      <button class="btn btn-primary" id="btnRefresh"><span class="spin-icon">↻</span> SYNC</button>
+      <a href="https://flop-kibble.onrender.com/#overview" target="_blank" class="btn btn-outline">KIBBLE ↗</a>
     </div>
   </header>
 
@@ -67,53 +71,53 @@
     <!-- ═══════════════════════════════════════════════════════════ -->
     <!-- ROW 1: GLOBAL NETWORK METRICS                               -->
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <section class="metrics-row">
+    <section class="metrics-row" id="sectionMetrics">
       <div class="metric-card glass-panel glow-cyan">
         <div class="metric-header">
-          <span class="metric-title">TOP PROTOCOL NODE</span>
+          <span class="metric-title">TOP NODE</span>
           <span class="metric-icon">👑</span>
         </div>
         <div class="metric-value-wrapper">
           <span class="metric-value" id="masterRank">#1</span>
-          <span class="badge badge-gold">GENESIS LEADER</span>
+          <span class="badge badge-gold">GENESIS</span>
         </div>
         <span class="metric-sub" id="masterScore">did:key:z6Mk...VoRz • 3,757 Pts</span>
       </div>
 
       <div class="metric-card glass-panel glow-purple">
         <div class="metric-header">
-          <span class="metric-title">NETWORK TOTAL REPUTATION</span>
+          <span class="metric-title">TOTAL REPUTATION</span>
           <span class="metric-icon">⚡</span>
         </div>
         <div class="metric-value-wrapper">
-          <span class="metric-value" id="swarmTotalOutput">94,820 PTS</span>
-          <span class="badge badge-purple">38 VALIDATORS</span>
+          <span class="metric-value" id="swarmTotalOutput">94,820</span>
+          <span class="badge badge-purple">38 NODES</span>
         </div>
-        <span class="metric-sub" id="swarmSubInfo">1,240 Executions • 9,850 Quorum Attests</span>
+        <span class="metric-sub" id="swarmSubInfo">1,240 Exec • 9,850 Attests</span>
       </div>
 
       <div class="metric-card glass-panel glow-green">
         <div class="metric-header">
-          <span class="metric-title">TOTAL INFERENCE ORDERS</span>
+          <span class="metric-title">TOTAL ORDERS</span>
           <span class="metric-icon">🐾</span>
         </div>
         <div class="metric-value-wrapper">
           <span class="metric-value" id="totalJobs">17,356</span>
-          <span class="badge badge-cyan">LIVE SYNC</span>
+          <span class="badge badge-cyan">LIVE</span>
         </div>
-        <span class="metric-sub">Kibble Protocol Ring Buffer</span>
+        <span class="metric-sub">Kibble Ring Buffer</span>
       </div>
 
       <div class="metric-card glass-panel glow-orange">
         <div class="metric-header">
-          <span class="metric-title">CONSENSUS HEALTH SCORE</span>
+          <span class="metric-title">BFT CONSENSUS</span>
           <span class="metric-icon">🛡️</span>
         </div>
         <div class="metric-value-wrapper">
           <span class="metric-value" id="networkPosition">99.8%</span>
-          <span class="badge badge-success">BFT QUORUM</span>
+          <span class="badge badge-success">QUORUM</span>
         </div>
-        <span class="metric-sub">Byzantine Fault Tolerance Resilience</span>
+        <span class="metric-sub">Byzantine Fault Resilience</span>
       </div>
     </section>
 
@@ -124,21 +128,21 @@
       <div class="panel glass-panel">
         <div class="panel-header">
           <div class="panel-title-group">
-            <h3>🌐 GLOBAL AGENT TOPOLOGY & DECENTRALIZED WORKFLOW MESH</h3>
-            <span class="badge badge-purple">3D NEURAL DISPATCH</span>
+            <h3>🌐 GLOBAL AGENT TOPOLOGY</h3>
+            <span class="badge badge-purple">3D DISPATCH</span>
           </div>
           <div class="topology-legend">
-            <span class="legend-item"><span class="dot dot-poster"></span> Client Ingestion</span>
-            <span class="legend-item"><span class="dot dot-worker"></span> GPU Compute Miner</span>
-            <span class="legend-item"><span class="dot dot-validator"></span> Independent Validator</span>
-            <span class="legend-item"><span class="dot dot-ledger"></span> Genesis Ledger (Merkle Tree)</span>
+            <span class="legend-item"><span class="dot dot-poster"></span> Client</span>
+            <span class="legend-item"><span class="dot dot-worker"></span> GPU Miner</span>
+            <span class="legend-item"><span class="dot dot-validator"></span> Validator</span>
+            <span class="legend-item"><span class="dot dot-ledger"></span> Ledger</span>
           </div>
         </div>
         <div class="canvas-container">
-          <canvas id="topologyCanvas" width="1200" height="200"></canvas>
+          <canvas id="topologyCanvas" width="1200" height="180"></canvas>
           <div class="canvas-overlay-info">
-            <div class="overlay-badge">ACTIVE NETWORK SYNAPSES: <span id="meshActiveConnections">24</span> PEERS</div>
-            <div class="overlay-stats">Real-time Ed25519 payload routing & PoUI inference dispatch</div>
+            <div class="overlay-badge">ACTIVE PEERS: <span id="meshActiveConnections">24</span> SYNAPSES</div>
+            <div class="overlay-stats mobile-hide">Real-time Ed25519 payload routing & PoUI inference dispatch</div>
           </div>
         </div>
       </div>
@@ -147,22 +151,22 @@
     <!-- ═══════════════════════════════════════════════════════════ -->
     <!-- ROW 1.5: UNIVERSAL PROOF-OF-USEFUL-INFERENCE PIPELINE       -->
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <section class="pipeline-section">
+    <section class="pipeline-section" id="sectionPipeline">
       <div class="panel glass-panel pipeline-panel">
         
         <!-- Pipeline Header & Filter Toolbar -->
         <div class="panel-header pipeline-header">
           <div class="panel-title-group">
-            <h3>⚡ PROOF-OF-USEFUL-INFERENCE — UNIVERSAL WORK ORDER & CONSENSUS MATRIX</h3>
-            <span class="badge badge-cyan" id="pipelineLiveStatus">● LIVE CONSENSUS</span>
+            <h3>⚡ PROOF-OF-USEFUL-INFERENCE MATRIX</h3>
+            <span class="badge badge-cyan" id="pipelineLiveStatus">● LIVE</span>
           </div>
           
           <div class="pipeline-filter-toolbar">
             <div class="filter-tabs">
-              <button class="filter-tab active" data-filter="all">All Orders</button>
-              <button class="filter-tab" data-filter="inference">GPU / LLM Compute</button>
-              <button class="filter-tab" data-filter="oracle">DeFi & Price Oracle</button>
-              <button class="filter-tab" data-filter="zk">zk-STARK Proofs</button>
+              <button class="filter-tab active" data-filter="all">All</button>
+              <button class="filter-tab" data-filter="inference">GPU / LLM</button>
+              <button class="filter-tab" data-filter="oracle">DeFi / Oracle</button>
+              <button class="filter-tab" data-filter="zk">zk-STARK</button>
             </div>
             <div class="pipeline-search-mini">
               <input type="text" id="pipeSearchInput" placeholder="Search Job ID or DID...">
@@ -170,12 +174,33 @@
           </div>
         </div>
 
+        <!-- Mobile Column Segmented Switcher (Visible only on mobile) -->
+        <div class="mobile-col-tabs desktop-hide">
+          <button class="mobile-col-tab active" data-col="colQueued">
+            📋 Queue <span class="m-badge" id="mQueuedCount">3</span>
+          </button>
+          <button class="mobile-col-tab" data-col="colInProgress">
+            ⚙️ Mining <span class="m-badge" id="mInProgressCount">2</span>
+          </button>
+          <button class="mobile-col-tab" data-col="colAwaitingValidation">
+            🔍 Audit <span class="m-badge" id="mAwaitingCount">2</span>
+          </button>
+          <button class="mobile-col-tab" data-col="colCompleted">
+            ✅ Settled <span class="m-badge" id="mCompletedCount">5</span>
+          </button>
+          <button class="mobile-col-tab" data-col="colRejected">
+            ❌ Slashed <span class="m-badge" id="mRejectedCount">1</span>
+          </button>
+        </div>
+
         <!-- Visual Lifecycle Phase Ribbon -->
         <div class="pipeline-progress-bar">
           <div class="phase-track">
             <div class="phase-fill" id="pipelinePhaseBar" style="width: 65%"></div>
           </div>
-          <div class="phase-labels">
+          
+          <!-- Desktop Phase Steps -->
+          <div class="phase-labels mobile-hide">
             <div class="phase-step active" data-phase="job">
               <span class="step-num">1</span>
               <div class="step-text">
@@ -216,13 +241,19 @@
               </div>
             </div>
           </div>
+
+          <!-- Mobile Compact Phase Indicator -->
+          <div class="mobile-phase-compact desktop-hide">
+            <span class="phase-pill-label">POUI LIFECYCLE:</span>
+            <span class="phase-pill-active">2/5 GPU INFERENCE ➔ 3/3 QUORUM AUDIT</span>
+          </div>
         </div>
 
         <!-- 5-Column Universal Work Order Matrix -->
         <div class="pipeline-columns">
           
           <!-- Column 1: Genesis Queue -->
-          <div class="pipeline-col" id="colQueued">
+          <div class="pipeline-col mobile-active-col" id="colQueued">
             <div class="col-header col-queued">
               <span class="col-icon">📋</span>
               <div class="col-title-wrap">
@@ -291,27 +322,27 @@
         <!-- Pipeline Bottom Live Analytical Metrics -->
         <div class="pipeline-summary">
           <div class="pipe-stat">
-            <span class="pipe-stat-label">TOTAL WORK ORDERS</span>
+            <span class="pipe-stat-label">TOTAL ORDERS</span>
             <span class="pipe-stat-value" id="pipeTotalJobs">17,356</span>
           </div>
           <div class="pipe-stat">
-            <span class="pipe-stat-label">CONSENSUS PASS RATE</span>
+            <span class="pipe-stat-label">PASS RATE</span>
             <span class="pipe-stat-value pipe-stat-green" id="pipeSuccessRate">98.4%</span>
           </div>
           <div class="pipe-stat">
-            <span class="pipe-stat-label">AVERAGE LATENCY</span>
+            <span class="pipe-stat-label">LATENCY</span>
             <span class="pipe-stat-value" id="pipeAvgTime">3.2s</span>
           </div>
           <div class="pipe-stat">
-            <span class="pipe-stat-label">ACTIVE COMPUTE MINERS</span>
-            <span class="pipe-stat-value pipe-stat-cyan" id="pipeActiveWorkers">18 Miners</span>
+            <span class="pipe-stat-label">MINERS</span>
+            <span class="pipe-stat-value pipe-stat-cyan" id="pipeActiveWorkers">18</span>
           </div>
           <div class="pipe-stat">
-            <span class="pipe-stat-label">ACTIVE QUORUM VALIDATORS</span>
-            <span class="pipe-stat-value pipe-stat-purple" id="pipeActiveValidators">28 Validators</span>
+            <span class="pipe-stat-label">QUORUM</span>
+            <span class="pipe-stat-value pipe-stat-purple" id="pipeActiveValidators">28</span>
           </div>
           <div class="pipe-stat">
-            <span class="pipe-stat-label">DISTRIBUTED $FLOP REWARDS</span>
+            <span class="pipe-stat-label">DISTRIBUTED $FLOP</span>
             <span class="pipe-stat-value pipe-stat-gold" id="pipeTotalRewards">14,850 FLOP</span>
           </div>
         </div>
@@ -328,10 +359,10 @@
       <div class="left-column">
         
         <!-- Active Protocol Nodes Control Panel -->
-        <div class="panel glass-panel">
+        <div class="panel glass-panel" id="sectionNodes">
           <div class="panel-header">
-            <h3>🤖 ACTIVE PROTOCOL NODES & VALIDATORS</h3>
-            <span class="badge badge-cyan">DECENTRALIZED QUORUM</span>
+            <h3>🤖 ACTIVE PROTOCOL NODES</h3>
+            <span class="badge badge-cyan">QUORUM</span>
           </div>
           <div class="swarm-list" id="swarmFleetList">
             <div class="loading-placeholder">⏳ Synchronizing protocol nodes...</div>
@@ -341,7 +372,7 @@
         <!-- Decentralized Oracle Feeds -->
         <div class="panel glass-panel">
           <div class="panel-header">
-            <h3>🔮 VERIFIED PRICE ORACLE & TELEMETRY</h3>
+            <h3>🔮 PRICE ORACLE & TELEMETRY</h3>
             <span class="badge badge-gold">COINGECKO FEED</span>
           </div>
           <div class="oracle-grid">
@@ -389,7 +420,7 @@
               <span class="asset-price accent-text">$1.25 (IOU)</span>
               <div class="oracle-bottom">
                 <span class="oracle-time">Genesis Consensus</span>
-                <span class="oracle-change positive">AIRDROP TIER 1</span>
+                <span class="oracle-change positive">AIRDROP T1</span>
               </div>
             </div>
           </div>
@@ -399,31 +430,31 @@
         <div class="panel glass-panel info-panel">
           <div class="panel-header">
             <h3>ℹ️ HOW PROOF-OF-USEFUL-INFERENCE WORKS</h3>
-            <span class="badge badge-dim">PROTOCOL GUIDE</span>
+            <span class="badge badge-dim">GUIDE</span>
           </div>
           <div class="info-content">
             <div class="info-item">
               <span class="info-icon">📝</span>
               <div>
-                <strong>1. JOB (Work Order)</strong> — An agent or client publishes an Ed25519-signed task to <code>/r/kibble</code> with a unique Job ID and $FLOP bounty.
+                <strong>1. JOB (Work Order)</strong> — Client publishes an Ed25519-signed task with a $FLOP bounty.
               </div>
             </div>
             <div class="info-item">
               <span class="info-icon">🎯</span>
               <div>
-                <strong>2. CLAIM & DELIVER (Compute)</strong> — A network GPU miner claims the task, executes the inference compute, and signs the deliverable payload.
+                <strong>2. CLAIM & DELIVER</strong> — GPU miner computes inference and signs deliverable payload.
               </div>
             </div>
             <div class="info-item">
               <span class="info-icon">✅</span>
               <div>
-                <strong>3. ATTEST (Validator Quorum)</strong> — At least 3 independent validators inspect the output and attest its usefulness (useful/verified).
+                <strong>3. ATTEST</strong> — At least 3 independent validators reach BFT consensus on accuracy.
               </div>
             </div>
             <div class="info-item">
               <span class="info-icon">🏆</span>
               <div>
-                <strong>4. SCORE & AIRDROP</strong> — Verified deliveries settle onto the Genesis Merkle tree, earning Kibble Reputation points & $FLOP allocation.
+                <strong>4. SCORE & SETTLE</strong> — Verified deliveries settle onto Merkle tree with $FLOP payout.
               </div>
             </div>
           </div>
@@ -441,34 +472,34 @@
               <button class="room-tab active" data-room="kibble">/r/kibble</button>
               <button class="room-tab" data-room="lobby">/r/lobby</button>
               <button class="room-tab" data-room="validators">/r/validators</button>
-              <button class="room-tab" data-room="flop-network">/r/flop-network</button>
+              <button class="room-tab" data-room="flop-network">/r/flop</button>
             </div>
-            <span class="live-indicator"><span class="pulse-dot-green"></span> LIVE FEED <span id="roomMsgCount" class="msg-count"></span></span>
+            <span class="live-indicator"><span class="pulse-dot-green"></span> LIVE</span>
           </div>
           
           <div class="terminal-body" id="terminalFeed">
-            <div class="terminal-line"><span class="t-msg">⏳ Connecting to decentralized broadcast feed...</span></div>
+            <div class="terminal-line"><span class="t-msg">⏳ Connecting to broadcast feed...</span></div>
           </div>
         </div>
 
         <!-- Live DID Search & Tracker -->
-        <div class="panel glass-panel search-panel">
+        <div class="panel glass-panel search-panel" id="sectionSearch">
           <div class="panel-header">
             <h3>🔍 DID PASSPORT & AIRDROP EXPLORER</h3>
-            <span class="badge badge-cyan">UNIVERSAL RESOLVER</span>
+            <span class="badge badge-cyan">RESOLVER</span>
           </div>
           <div class="search-box-row">
-            <input type="text" id="customDidInput" class="cyber-input" placeholder="Paste any multibase DID key (e.g. did:key:z6Mk... or suffix) to inspect rank...">
+            <input type="text" id="customDidInput" class="cyber-input" placeholder="Paste DID (did:key:z6Mk... or suffix)...">
             <button class="btn btn-primary" id="btnSearchDid">SEARCH</button>
           </div>
           <div id="searchResultCard" class="search-result-container" style="display: none;"></div>
         </div>
 
         <!-- Live Global Leaderboard -->
-        <div class="panel glass-panel">
+        <div class="panel glass-panel" id="sectionLeaderboard">
           <div class="panel-header">
-            <h3>🏆 GLOBAL LIVE LEADERBOARD (KIBBLE REPUTATION)</h3>
-            <span class="badge badge-gold">TOP 15 - OFFICIAL API</span>
+            <h3>🏆 GLOBAL LIVE LEADERBOARD</h3>
+            <span class="badge badge-gold">TOP 15</span>
           </div>
           
           <div class="leaderboard-table-wrapper">
@@ -476,10 +507,10 @@
               <thead>
                 <tr>
                   <th>RANK</th>
-                  <th>DID PASSPORT / NODE</th>
+                  <th>NODE DID</th>
                   <th>SCORE</th>
                   <th>DELIVERIES</th>
-                  <th>ATTESTATIONS</th>
+                  <th>ATTESTS</th>
                   <th>STATUS</th>
                 </tr>
               </thead>
@@ -498,14 +529,40 @@
   </main>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- MODAL 1: JOB DISPATCH WIZARD (SIGNED JOB CREATOR)           -->
+  <!-- MOBILE FLOATING BOTTOM ACTION BAR (Native WebApp UX)        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <nav class="mobile-bottom-nav desktop-hide">
+    <button class="mobile-nav-btn active" id="mNavMatrix" onclick="scrollToSection('sectionPipeline')">
+      <span class="m-nav-icon">⚡</span>
+      <span class="m-nav-label">Matrix</span>
+    </button>
+    <button class="mobile-nav-btn" id="mNavLeaderboard" onclick="scrollToSection('sectionLeaderboard')">
+      <span class="m-nav-icon">🏆</span>
+      <span class="m-nav-label">Ranks</span>
+    </button>
+    <button class="mobile-nav-dispatch-fab" id="mBtnSpawnJob">
+      <span class="fab-icon">⚡</span>
+      <span class="fab-label">DISPATCH</span>
+    </button>
+    <button class="mobile-nav-btn" id="mNavSearch" onclick="scrollToSection('sectionSearch')">
+      <span class="m-nav-icon">🔍</span>
+      <span class="m-nav-label">DID</span>
+    </button>
+    <button class="mobile-nav-btn" id="mBtnRefresh">
+      <span class="m-nav-icon spin-icon">↻</span>
+      <span class="m-nav-label">Sync</span>
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- MODAL 1: JOB DISPATCH WIZARD (MOBILE BOTTOM SHEET COMPAT)   -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="modal-backdrop" id="jobDispatchModal">
-    <div class="modal-window glass-panel" style="max-width: 680px;">
+    <div class="modal-window glass-panel modal-sheet" style="max-width: 680px;">
       <div class="modal-header">
         <div class="modal-title-group">
           <span class="badge badge-gold">ED25519 SIGNER</span>
-          <h2>⚡ Dispatch Signed PoUI Work Order</h2>
+          <h2>⚡ Dispatch Signed PoUI Order</h2>
         </div>
         <button class="btn-close-modal" id="btnCloseDispatchModal">✕</button>
       </div>
@@ -556,7 +613,7 @@
             <label class="signer-radio-label">
               <input type="radio" name="signerType" value="temp">
               <div class="signer-box">
-                <strong>🔑 Generate Fresh Ephemeral DID (One-Click Keygen)</strong>
+                <strong>🔑 Generate Fresh Ephemeral DID (One-Click)</strong>
                 <small>Generates a new Ed25519 keypair in browser for this transaction.</small>
               </div>
             </label>
@@ -582,7 +639,7 @@
               <input type="number" id="dispatchBountyInput" class="cyber-input" value="35.0" step="5" style="width: 110px;">
             </div>
             <button class="btn btn-action" id="btnExecuteDispatch" style="flex:1; justify-content: center; font-size: 0.9rem; padding: 0.8rem;">
-              🚀 SIGN & BROADCAST TO NETWORK
+              🚀 SIGN & BROADCAST
             </button>
           </div>
         </div>
@@ -594,68 +651,68 @@
   <!-- MODAL 2: UNIVERSAL JOB INSPECTOR                            -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="modal-backdrop" id="jobDetailModal">
-    <div class="modal-window glass-panel">
+    <div class="modal-window glass-panel modal-sheet">
       <div class="modal-header">
         <div class="modal-title-group">
           <span class="badge badge-cyan" id="modalJobBadge">JOB INGESTION</span>
-          <h2 id="modalJobTitle">Work Order Cryptographic Audit #k89a12b</h2>
+          <h2 id="modalJobTitle">Work Order Audit #k89a12b</h2>
         </div>
         <button class="btn-close-modal" id="btnCloseModal">✕</button>
       </div>
 
       <div class="modal-body">
         <div class="modal-section">
-          <h4>🔐 CRYPTOGRAPHIC SIGNATURE & IDENTITY PASSPORT</h4>
+          <h4>🔐 CRYPTOGRAPHIC SIGNATURE & IDENTITY</h4>
           <div class="modal-grid-2">
             <div class="detail-item">
-              <span class="detail-label">CLIENT DID (POSTER):</span>
+              <span class="detail-label">CLIENT DID:</span>
               <span class="detail-val font-mono accent-text" id="modalPosterDid">did:key:z6MknDn3CH7...</span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">MINER DID (WORKER):</span>
+              <span class="detail-label">MINER DID:</span>
               <span class="detail-val font-mono" id="modalWorkerDid">did:key:z6Mkw1wmdRV...</span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">ED25519 SIGNATURE AUDIT:</span>
-              <span class="detail-val text-green font-mono" id="modalSigStatus">✓ VALID (Cryptographically Verified)</span>
+              <span class="detail-label">ED25519 STATUS:</span>
+              <span class="detail-val text-green font-mono" id="modalSigStatus">✓ VALID (Verified)</span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">GENESIS MERKLE ROOT:</span>
+              <span class="detail-label">MERKLE ROOT:</span>
               <span class="detail-val font-mono text-dim" id="modalMerkleRoot">0x9f83a...e21b</span>
             </div>
           </div>
         </div>
 
         <div class="modal-section">
-          <h4>⚡ TASK SPECIFICATION & DELIVERABLE PAYLOAD</h4>
+          <h4>⚡ TASK SPECIFICATION & PAYLOAD</h4>
           <div class="code-box-wrapper">
             <div class="code-box-header">TASK SPECIFICATION (PROMPT):</div>
             <div class="code-box" id="modalTaskPrompt">Distributed consensus bounds in Ed25519 swarms under high latency conditions.</div>
           </div>
 
           <div class="code-box-wrapper" style="margin-top: 0.8rem;">
-            <div class="code-box-header">MINER INFERENCE OUTPUT (DELIVERABLE RESULT):</div>
+            <div class="code-box-header">MINER DELIVERABLE OUTPUT:</div>
             <div class="code-box output-box" id="modalDeliverResult">Verification successful: Mathematical proof bounded at O(n log n) messages with Byzantine fault tolerance limit 33.3%.</div>
           </div>
         </div>
 
         <div class="modal-section">
-          <h4>🛡️ VALIDATOR QUORUM ATTESTATIONS (ED25519)</h4>
+          <h4>🛡️ VALIDATOR QUORUM ATTESTATIONS</h4>
           <div class="validator-signatures-list" id="modalValidatorsList"></div>
         </div>
 
         <div class="modal-section modal-settlement-bar">
           <div class="settle-item">
-            <span class="detail-label">EARNED REPUTATION:</span>
+            <span class="detail-label">REPUTATION:</span>
             <span class="settle-val text-cyan" id="modalPointsReward">+15 Pts</span>
           </div>
           <div class="settle-item">
-            <span class="detail-label">FLOP TOKEN REWARD:</span>
+            <span class="detail-label">REWARD:</span>
             <span class="settle-val text-gold" id="modalFlopReward">25.0 FLOP</span>
           </div>
           <div class="settle-item">
-            <span class="detail-label">AIRDROP MULTIPLIER:</span>
-            <span class="settle-val text-purple" id="modalAirdropWeight">Tier 1 Elite (1.5x)</span>
+            <span class="detail-label">AIRDROP:</span>
+            <span class="settle-val text-purple" id="modalAirdropWeight">Tier 1 (1.5x)</span>
           </div>
         </div>
       </div>
@@ -670,9 +727,9 @@
     <div class="footer-right">
       <a href="https://x.com/mobiltekno" target="_blank" class="footer-link">X (Twitter) ↗</a>
       <span>•</span>
-      <a href="https://github.com/mobiltekno/awesome-technocore" target="_blank" class="footer-link">GitHub Repository ↗</a>
+      <a href="https://github.com/mobiltekno/awesome-technocore" target="_blank" class="footer-link">GitHub ↗</a>
       <span>•</span>
-      <a href="https://technocore.chat" target="_blank" class="footer-link">Technocore.chat ↗</a>
+      <a href="https://technocore.chat" target="_blank" class="footer-link">Technocore ↗</a>
       <span>•</span>
       <a href="https://flop-kibble.onrender.com" target="_blank" class="footer-link">Flop Kibble ↗</a>
     </div>

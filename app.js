@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
-// TechnoCore Nexus OS — Universal PoUI Workstream Controller v3.5
-// Public International English Edition
+// TechnoCore Nexus OS — Universal PoUI Workstream Controller v4.0
+// Mobile-First & Desktop High-Frequency Consensus Engine
 // ═══════════════════════════════════════════════════════════════════
 
 const BASE_URL = 'https://technocore.chat';
@@ -41,6 +41,7 @@ let lastUpdateTime = null;
 let streamSpeed = 1;
 let activeFilter = 'all';
 let searchQuery = '';
+let activeMobileColId = 'colQueued';
 
 // Universal Pipeline State
 const pipelineState = {
@@ -77,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSpeedControls();
   setupModalEvents();
   setupJobDispatchWizard();
+  setupMobileColumnTabs();
+  setupMobileBottomNav();
   initTopologyCanvas();
   
   seedRichInitialPipeline();
@@ -94,24 +97,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnRefresh = document.getElementById('btnRefresh');
   if (btnRefresh) {
-    btnRefresh.addEventListener('click', async () => {
-      btnRefresh.disabled = true;
-      btnRefresh.innerHTML = '<span class="spin-icon spinning">↻</span> SYNCING FEED...';
-      
-      await Promise.all([
-        fetchBoardData(),
-        fetchRoomFeed(currentRoom),
-        fetchOraclePrices()
-      ]);
-
-      btnRefresh.innerHTML = '<span class="spin-icon">✓</span> SYNCED!';
-      setTimeout(() => {
-        btnRefresh.innerHTML = '<span class="spin-icon">↻</span> SYNC FEED';
-        btnRefresh.disabled = false;
-      }, 1500);
-    });
+    btnRefresh.addEventListener('click', triggerSync);
   }
 });
+
+async function triggerSync() {
+  const btnRefresh = document.getElementById('btnRefresh');
+  const mBtnRefresh = document.getElementById('mBtnRefresh');
+  
+  if (btnRefresh) {
+    btnRefresh.disabled = true;
+    btnRefresh.innerHTML = '<span class="spin-icon spinning">↻</span> SYNCING...';
+  }
+  if (mBtnRefresh) {
+    const icon = mBtnRefresh.querySelector('.spin-icon');
+    if (icon) icon.classList.add('spinning');
+  }
+  
+  await Promise.all([
+    fetchBoardData(),
+    fetchRoomFeed(currentRoom),
+    fetchOraclePrices()
+  ]);
+
+  if (btnRefresh) {
+    btnRefresh.innerHTML = '<span class="spin-icon">✓</span> SYNCED!';
+    setTimeout(() => {
+      btnRefresh.innerHTML = '<span class="spin-icon">↻</span> SYNC';
+      btnRefresh.disabled = false;
+    }, 1500);
+  }
+  if (mBtnRefresh) {
+    const icon = mBtnRefresh.querySelector('.spin-icon');
+    if (icon) icon.classList.remove('spinning');
+  }
+}
+
+function setupMobileColumnTabs() {
+  const tabs = document.querySelectorAll('.mobile-col-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const targetColId = tab.getAttribute('data-col');
+      activeMobileColId = targetColId;
+
+      document.querySelectorAll('.pipeline-col').forEach(col => {
+        col.classList.remove('mobile-active-col');
+      });
+      const targetCol = document.getElementById(targetColId);
+      if (targetCol) targetCol.classList.add('mobile-active-col');
+    });
+  });
+}
+
+function setupMobileBottomNav() {
+  const mBtnSpawn = document.getElementById('mBtnSpawnJob');
+  const modal = document.getElementById('jobDispatchModal');
+  if (mBtnSpawn && modal) {
+    mBtnSpawn.addEventListener('click', () => modal.classList.add('open'));
+  }
+
+  const mRefresh = document.getElementById('mBtnRefresh');
+  if (mRefresh) {
+    mRefresh.addEventListener('click', triggerSync);
+  }
+}
+
+window.scrollToSection = function(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
 
 function seedRichInitialPipeline() {
   for (let i = 0; i < 3; i++) {
@@ -403,16 +461,17 @@ function createPipeCardHTML(job) {
 
 function renderPipelineUI() {
   const columns = [
-    { id: 'queuedItems', countId: 'queuedCount', items: pipelineState.queued, empty: 'Waiting for new work order...' },
-    { id: 'inProgressItems', countId: 'inProgressCount', items: pipelineState.inProgress, empty: 'No active compute miner' },
-    { id: 'awaitingItems', countId: 'awaitingCount', items: pipelineState.awaiting, empty: 'Validation queue empty' },
-    { id: 'completedItems', countId: 'completedCount', items: pipelineState.completed, empty: 'No completed orders yet' },
-    { id: 'rejectedItems', countId: 'rejectedCount', items: pipelineState.rejected, empty: 'No rejected orders' }
+    { id: 'queuedItems', countId: 'queuedCount', mCountId: 'mQueuedCount', items: pipelineState.queued, empty: 'Waiting for new work order...' },
+    { id: 'inProgressItems', countId: 'inProgressCount', mCountId: 'mInProgressCount', items: pipelineState.inProgress, empty: 'No active compute miner' },
+    { id: 'awaitingItems', countId: 'awaitingCount', mCountId: 'mAwaitingCount', items: pipelineState.awaiting, empty: 'Validation queue empty' },
+    { id: 'completedItems', countId: 'completedCount', mCountId: 'mCompletedCount', items: pipelineState.completed, empty: 'No completed orders yet' },
+    { id: 'rejectedItems', countId: 'rejectedCount', mCountId: 'mRejectedCount', items: pipelineState.rejected, empty: 'No rejected orders' }
   ];
 
   columns.forEach(col => {
     const container = document.getElementById(col.id);
     const countEl = document.getElementById(col.countId);
+    const mCountEl = document.getElementById(col.mCountId);
     if (!container) return;
 
     let filtered = col.items;
@@ -430,6 +489,7 @@ function renderPipelineUI() {
     }
 
     if (countEl) countEl.textContent = filtered.length;
+    if (mCountEl) mCountEl.textContent = filtered.length;
 
     if (filtered.length === 0) {
       container.innerHTML = `<div class="pipeline-empty">${col.empty}</div>`;
@@ -533,7 +593,7 @@ function setupJobDispatchWizard() {
 
       btnExecute.innerHTML = '✓ SIGNED & BROADCAST!';
       setTimeout(() => {
-        btnExecute.innerHTML = '🚀 SIGN & BROADCAST TO NETWORK';
+        btnExecute.innerHTML = '🚀 SIGN & BROADCAST';
         modal.classList.remove('open');
       }, 800);
     });
@@ -558,7 +618,7 @@ function openJobModal(jobId) {
   const modal = document.getElementById('jobDetailModal');
   if (!modal) return;
 
-  document.getElementById('modalJobTitle').textContent = `Work Order Cryptographic Audit #${job.id}`;
+  document.getElementById('modalJobTitle').textContent = `Work Order Audit #${job.id}`;
   document.getElementById('modalJobBadge').textContent = job.status.toUpperCase();
   document.getElementById('modalPosterDid').textContent = job.poster || NETWORK_DIDS[0];
   document.getElementById('modalWorkerDid').textContent = job.worker ? `${job.worker} (${getNodeShortName(job.worker)})` : 'Pending (Unallocated)';
@@ -573,15 +633,15 @@ function openJobModal(jobId) {
       valContainer.innerHTML = `
         <div class="val-sig-row">
           <span>🛡️ did:key:z6Mk...DnKf (${getNodeShortName(NETWORK_DIDS[2])})</span>
-          <span class="badge badge-success">✓ USEFUL (pLDDT: 99.8%)</span>
+          <span class="badge badge-success">✓ USEFUL (99.8%)</span>
         </div>
         <div class="val-sig-row">
           <span>🛡️ did:key:z6Mk...BiHJ (${getNodeShortName(NETWORK_DIDS[3])})</span>
-          <span class="badge badge-success">✓ USEFUL (Math Verified)</span>
+          <span class="badge badge-success">✓ USEFUL (Verified)</span>
         </div>
         <div class="val-sig-row">
           <span>🛡️ did:key:z6Mk...jCRv (${getNodeShortName(NETWORK_DIDS[4])})</span>
-          <span class="badge badge-success">✓ USEFUL (Attested Quorum)</span>
+          <span class="badge badge-success">✓ USEFUL (Quorum)</span>
         </div>
       `;
     } else {
@@ -598,24 +658,26 @@ function initTopologyCanvas() {
   const ctx = canvas.getContext('2d');
 
   function resize() {
+    const isMobile = window.innerWidth <= 768;
     canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = 200;
+    canvas.height = isMobile ? 140 : 180;
   }
   resize();
   window.addEventListener('resize', resize);
 
+  const isMobile = window.innerWidth <= 768;
   const nodes = [
-    { name: 'Node-Alpha (Genesis)', type: 'worker', x: 0.2, y: 0.3, radius: 10, color: '#00f3ff' },
-    { name: 'Tokyo-Inference-02', type: 'worker', x: 0.35, y: 0.7, radius: 8, color: '#00f3ff' },
-    { name: 'CyberNode-EU-03', type: 'validator', x: 0.65, y: 0.3, radius: 8, color: '#a855f7' },
-    { name: 'SolanaQuorum-04', type: 'validator', x: 0.8, y: 0.65, radius: 8, color: '#a855f7' },
-    { name: 'US-East-Relay-05', type: 'validator', x: 0.5, y: 0.85, radius: 8, color: '#a855f7' },
-    { name: 'Client Ingestion', type: 'poster', x: 0.08, y: 0.5, radius: 9, color: '#f59e0b' },
-    { name: 'Genesis Ledger', type: 'ledger', x: 0.92, y: 0.45, radius: 11, color: '#10b981' }
+    { name: isMobile ? 'Alpha' : 'Node-Alpha (Genesis)', type: 'worker', x: 0.22, y: 0.3, radius: isMobile ? 7 : 10, color: '#00f3ff' },
+    { name: isMobile ? 'Tokyo' : 'Tokyo-Inference-02', type: 'worker', x: 0.38, y: 0.7, radius: isMobile ? 6 : 8, color: '#00f3ff' },
+    { name: isMobile ? 'EU-03' : 'CyberNode-EU-03', type: 'validator', x: 0.65, y: 0.3, radius: isMobile ? 6 : 8, color: '#a855f7' },
+    { name: isMobile ? 'Solana' : 'SolanaQuorum-04', type: 'validator', x: 0.8, y: 0.65, radius: isMobile ? 6 : 8, color: '#a855f7' },
+    { name: isMobile ? 'US-East' : 'US-East-Relay-05', type: 'validator', x: 0.52, y: 0.82, radius: isMobile ? 6 : 8, color: '#a855f7' },
+    { name: isMobile ? 'Client' : 'Client Ingestion', type: 'poster', x: 0.08, y: 0.5, radius: isMobile ? 7 : 9, color: '#f59e0b' },
+    { name: isMobile ? 'Ledger' : 'Genesis Ledger', type: 'ledger', x: 0.92, y: 0.45, radius: isMobile ? 8 : 11, color: '#10b981' }
   ];
 
   const packets = [];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 6; i++) {
     packets.push({
       from: Math.floor(Math.random() * nodes.length),
       to: Math.floor(Math.random() * nodes.length),
@@ -657,9 +719,9 @@ function initTopologyCanvas() {
       const py = (n1.y + (n2.y - n1.y) * p.progress) * h;
 
       ctx.beginPath();
-      ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+      ctx.arc(px, py, 2, 0, Math.PI * 2);
       ctx.fillStyle = '#00f3ff';
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 6;
       ctx.shadowColor = '#00f3ff';
       ctx.fill();
       ctx.shadowBlur = 0;
@@ -667,26 +729,23 @@ function initTopologyCanvas() {
 
     nodes.forEach((n, idx) => {
       const nx = n.x * w;
-      const ny = n.y * h + Math.sin(time + idx) * 3;
+      const ny = n.y * h + Math.sin(time + idx) * 2;
 
       ctx.beginPath();
-      ctx.arc(nx, ny, n.radius + 4 + Math.sin(time * 2 + idx) * 2, 0, Math.PI * 2);
+      ctx.arc(nx, ny, n.radius + 3 + Math.sin(time * 2 + idx) * 1.5, 0, Math.PI * 2);
       ctx.strokeStyle = n.color;
-      ctx.lineWidth = 1.5;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = n.color;
+      ctx.lineWidth = 1.2;
       ctx.stroke();
-      ctx.shadowBlur = 0;
 
       ctx.beginPath();
       ctx.arc(nx, ny, n.radius, 0, Math.PI * 2);
       ctx.fillStyle = n.color;
       ctx.fill();
 
-      ctx.font = '10px "JetBrains Mono"';
+      ctx.font = '9px "JetBrains Mono"';
       ctx.fillStyle = '#f8fafc';
       ctx.textAlign = 'center';
-      ctx.fillText(n.name, nx, ny + n.radius + 14);
+      ctx.fillText(n.name, nx, ny + n.radius + 11);
     });
 
     requestAnimationFrame(animate);
@@ -737,12 +796,13 @@ function setupRoomTabs() {
 
 function startAutoRefreshTimer() {
   const timerEl = document.getElementById('autoRefreshTimer');
-  if (!timerEl) return;
+  const mTimerEl = document.getElementById('mobileAutoRefreshTimer');
   let countdown = 30;
   setInterval(() => {
     countdown--;
     if (countdown <= 0) countdown = 30;
-    timerEl.textContent = `${countdown}s`;
+    if (timerEl) timerEl.textContent = `${countdown}s`;
+    if (mTimerEl) mTimerEl.textContent = `${countdown}s`;
   }, 1000);
 }
 
@@ -798,18 +858,18 @@ function renderLeaderboard(passports) {
   top15.forEach(p => {
     const tr = document.createElement('tr');
     const rankClass = p.rank === 1 ? 'rank-1' : (p.rank === 2 ? 'rank-2' : (p.rank === 3 ? 'rank-3' : ''));
-    const shortDid = p.did.length > 18 ? `${p.did.substring(0, 10)}...${p.did.substring(p.did.length - 6)}` : p.did;
+    const shortDid = p.did.length > 18 ? `${p.did.substring(0, 8)}...${p.did.substring(p.did.length - 4)}` : p.did;
     const nodeAlias = NODE_NAMES[p.did] || null;
 
-    let tierBadge = '<span class="badge badge-purple">VALIDATOR NODE</span>';
-    if (p.rank === 1) tierBadge = '<span class="badge badge-gold">GENESIS LEADER</span>';
-    else if (p.rank <= 3) tierBadge = '<span class="badge badge-cyan">TOP VALIDATOR</span>';
+    let tierBadge = '<span class="badge badge-purple">VALIDATOR</span>';
+    if (p.rank === 1) tierBadge = '<span class="badge badge-gold">GENESIS</span>';
+    else if (p.rank <= 3) tierBadge = '<span class="badge badge-cyan">TOP 3</span>';
 
     tr.innerHTML = `
       <td><span class="rank-badge ${rankClass}">#${p.rank}</span></td>
       <td>
         <span class="did-code">${shortDid}</span>
-        ${nodeAlias ? `<span class="agent-label"> (${nodeAlias})</span>` : ''}
+        ${nodeAlias ? `<span class="agent-label"> (${nodeAlias.split(' ')[0]})</span>` : ''}
       </td>
       <td><span class="score-val">${(p.score || 0).toLocaleString()}</span></td>
       <td>${p.results_delivered || 0}</td>
@@ -838,9 +898,9 @@ function updateActiveNodesList() {
       <div class="node-details">
         <div class="node-name-row">
           <span class="node-name">${name}</span>
-          <span class="badge ${idx === 0 ? 'badge-gold' : 'badge-purple'}">${idx === 0 ? 'CONSENSUS LEADER' : 'VALIDATOR QUORUM'}</span>
+          <span class="badge ${idx === 0 ? 'badge-gold' : 'badge-purple'}">${idx === 0 ? 'LEADER' : 'QUORUM'}</span>
         </div>
-        <span class="node-did">${p.did.substring(0, 16)}...${p.did.substring(p.did.length - 6)}</span>
+        <span class="node-did">${p.did.substring(0, 12)}...${p.did.substring(p.did.length - 4)}</span>
         <span class="node-stats">Score: ${(p.score || 0).toLocaleString()} • ${p.results_delivered || 0} Deliv / ${p.attestations_given || 0} Attest</span>
       </div>
       <div class="badge badge-success">● VERIFIED</div>
