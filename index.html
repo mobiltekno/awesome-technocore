@@ -670,11 +670,99 @@
           </div>
         </div>
 
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- NFT BADGE MINT STATISTICS BY CATEGORY                      -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="panel glass-panel nft-stats-panel" id="sectionNftStats">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h3>🎖️ NFT BADGE MINT STATISTICS</h3>
+              <span class="badge badge-gold">LIVE TRACKER</span>
+            </div>
+            <span class="badge badge-cyan" id="nftTotalMintedBadge">0 MINTED</span>
+          </div>
+
+          <!-- Tier Category Breakdown Grid -->
+          <div class="nft-stats-grid" id="nftStatsGrid">
+            <div class="nft-stat-card nft-stat-sovereign" data-tier="5">
+              <div class="nft-stat-icon">👑</div>
+              <div class="nft-stat-body">
+                <span class="nft-stat-tier-name">Genesis Sovereign</span>
+                <span class="nft-stat-count" id="nftCountTier5">0</span>
+              </div>
+              <div class="nft-stat-bar-track"><div class="nft-stat-bar-fill tier5-fill" id="nftBarTier5" style="width: 0%"></div></div>
+              <span class="nft-stat-mult">3.0x</span>
+            </div>
+            <div class="nft-stat-card nft-stat-core" data-tier="4">
+              <div class="nft-stat-icon">💎</div>
+              <div class="nft-stat-body">
+                <span class="nft-stat-tier-name">Singularity Core</span>
+                <span class="nft-stat-count" id="nftCountTier4">0</span>
+              </div>
+              <div class="nft-stat-bar-track"><div class="nft-stat-bar-fill tier4-fill" id="nftBarTier4" style="width: 0%"></div></div>
+              <span class="nft-stat-mult">2.0x</span>
+            </div>
+            <div class="nft-stat-card nft-stat-sharder" data-tier="3">
+              <div class="nft-stat-icon">🥇</div>
+              <div class="nft-stat-body">
+                <span class="nft-stat-tier-name">Matrix Sharder</span>
+                <span class="nft-stat-count" id="nftCountTier3">0</span>
+              </div>
+              <div class="nft-stat-bar-track"><div class="nft-stat-bar-fill tier3-fill" id="nftBarTier3" style="width: 0%"></div></div>
+              <span class="nft-stat-mult">1.5x</span>
+            </div>
+            <div class="nft-stat-card nft-stat-sentinel" data-tier="2">
+              <div class="nft-stat-icon">🥈</div>
+              <div class="nft-stat-body">
+                <span class="nft-stat-tier-name">Quorum Sentinel</span>
+                <span class="nft-stat-count" id="nftCountTier2">0</span>
+              </div>
+              <div class="nft-stat-bar-track"><div class="nft-stat-bar-fill tier2-fill" id="nftBarTier2" style="width: 0%"></div></div>
+              <span class="nft-stat-mult">1.25x</span>
+            </div>
+            <div class="nft-stat-card nft-stat-spark" data-tier="1">
+              <div class="nft-stat-icon">🥉</div>
+              <div class="nft-stat-body">
+                <span class="nft-stat-tier-name">Neural Spark</span>
+                <span class="nft-stat-count" id="nftCountTier1">0</span>
+              </div>
+              <div class="nft-stat-bar-track"><div class="nft-stat-bar-fill tier1-fill" id="nftBarTier1" style="width: 0%"></div></div>
+              <span class="nft-stat-mult">1.1x</span>
+            </div>
+          </div>
+
+          <!-- Mint Activity Summary -->
+          <div class="nft-mint-summary">
+            <div class="nft-sum-item">
+              <span class="nft-sum-label">TOTAL BADGES</span>
+              <span class="nft-sum-value text-gold" id="nftSumTotal">0</span>
+            </div>
+            <div class="nft-sum-item">
+              <span class="nft-sum-label">UNIQUE HOLDERS</span>
+              <span class="nft-sum-value text-cyan" id="nftSumHolders">0</span>
+            </div>
+            <div class="nft-sum-item">
+              <span class="nft-sum-label">HIGHEST TIER</span>
+              <span class="nft-sum-value text-purple" id="nftSumHighest">—</span>
+            </div>
+            <div class="nft-sum-item">
+              <span class="nft-sum-label">LAST MINT</span>
+              <span class="nft-sum-value" id="nftSumLastMint">—</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Live Global Leaderboard -->
         <div class="panel glass-panel" id="sectionLeaderboard">
           <div class="panel-header">
-            <h3>🏆 GLOBAL LIVE LEADERBOARD</h3>
-            <span class="badge badge-gold">TOP 15</span>
+            <div class="panel-title-group">
+              <h3>🏆 GLOBAL LIVE LEADERBOARD</h3>
+              <span class="badge badge-gold">TOP 15</span>
+            </div>
+            <div class="leaderboard-controls">
+              <span class="leaderboard-live-dot"><span class="pulse-dot-green"></span> AUTO-SYNC</span>
+              <span class="badge badge-cyan leaderboard-timer" id="leaderboardTimer">30s</span>
+            </div>
           </div>
           
           <div class="leaderboard-table-wrapper">
@@ -686,12 +774,13 @@
                   <th>SCORE</th>
                   <th>DELIVERIES</th>
                   <th>ATTESTS</th>
+                  <th>NFT BADGE</th>
                   <th>STATUS</th>
                 </tr>
               </thead>
               <tbody id="leaderboardBody">
                 <tr>
-                  <td colspan="6" class="loading-cell">⏳ Loading live consensus records...</td>
+                  <td colspan="7" class="loading-cell">⏳ Loading live consensus records...</td>
                 </tr>
               </tbody>
             </table>

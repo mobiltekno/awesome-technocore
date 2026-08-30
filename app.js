@@ -58,6 +58,18 @@ let streamSpeed = 1;
 let activeFilter = 'all';
 let searchQuery = '';
 let activeMobileColId = 'colQueued';
+let leaderboardCountdown = 30;
+let leaderboardTimerInterval = null;
+
+// NFT Mint Statistics Tracking
+const nftMintStats = {
+  tiers: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+  totalMinted: 0,
+  uniqueHolders: new Set(),
+  highestTier: 0,
+  lastMintTime: null,
+  mintLog: []  // { did, tier, tierName, timestamp }
+};
 
 // Universal Pipeline State
 const pipelineState = {
@@ -113,12 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initTopologyCanvas();
   
   seedRichInitialPipeline();
+  seedInitialNftMintStats();
 
   fetchBoardData();
   fetchRoomFeed(currentRoom);
   fetchOraclePrices();
   fetchHegemonState();
   startAutoRefreshTimer();
+  startLeaderboardCountdown();
 
   startPerpetualPipelineTraffic();
 
@@ -936,37 +950,105 @@ async function fetchBoardData() {
   updateActiveNodesList();
 }
 
+// Compute NFT tier for a given passport
+function computeNftTier(p) {
+  const totalTx = (p.results_delivered || 0) + (p.attestations_given || 0);
+  const score = p.score || 0;
+  const rank = p.rank || 999;
+  const did = (p.did || '').replace(/^did:key:/, '');
+
+  if (totalTx >= 5000 || rank === 1 || did === ALPHA_COUNCIL_DIDS[0]) {
+    return { tier: 5, name: 'Sovereign', icon: '👑', cssClass: 'lb-nft-sovereign' };
+  } else if (totalTx >= 1000 || score >= 2000) {
+    return { tier: 4, name: 'Core', icon: '💎', cssClass: 'lb-nft-core' };
+  } else if (totalTx >= 100 || score >= 500) {
+    return { tier: 3, name: 'Sharder', icon: '🥇', cssClass: 'lb-nft-sharder' };
+  } else if (totalTx >= 50) {
+    return { tier: 2, name: 'Sentinel', icon: '🥈', cssClass: 'lb-nft-sentinel' };
+  } else if (totalTx >= 10) {
+    return { tier: 1, name: 'Spark', icon: '🥉', cssClass: 'lb-nft-spark' };
+  }
+  return null;
+}
+
 function renderLeaderboard(passports) {
   const tbody = document.getElementById('leaderboardBody');
   if (!tbody || passports.length === 0) return;
+
+  const oldRanks = {};
+  tbody.querySelectorAll('tr[data-did]').forEach(row => {
+    oldRanks[row.getAttribute('data-did')] = row.querySelector('.score-val')?.textContent || '0';
+  });
 
   tbody.innerHTML = '';
   const top15 = passports.slice(0, 15);
 
   top15.forEach(p => {
     const tr = document.createElement('tr');
+    tr.setAttribute('data-did', p.did);
     const rankClass = p.rank === 1 ? 'rank-1' : (p.rank === 2 ? 'rank-2' : (p.rank === 3 ? 'rank-3' : ''));
     const shortDid = p.did.length > 18 ? `${p.did.substring(0, 8)}...${p.did.substring(p.did.length - 4)}` : p.did;
-    const nodeAlias = NODE_NAMES[p.did] || null;
+    const nodeAlias = NODE_NAMES[p.did] || p.nick || null;
+    const displayName = nodeAlias ? nodeAlias.split('(')[0].trim().split(' ')[0] : null;
 
-    let tierBadge = '<span class="badge badge-purple">VALIDATOR</span>';
-    if (p.rank === 1) tierBadge = '<span class="badge badge-gold">GENESIS</span>';
-    else if (p.rank <= 3) tierBadge = '<span class="badge badge-cyan">TOP 3</span>';
-    else if (p.score >= 500) tierBadge = '<span class="badge badge-gold">TIER 1 (500 PTS)</span>';
+    let statusBadge = '<span class="badge badge-purple">VALIDATOR</span>';
+    if (p.rank === 1) statusBadge = '<span class="badge badge-gold">GENESIS</span>';
+    else if (p.rank <= 3) statusBadge = '<span class="badge badge-cyan">TOP 3</span>';
+    else if (p.score >= 500) statusBadge = '<span class="badge badge-gold">TIER 1</span>';
+
+    // NFT Badge column
+    const nftInfo = computeNftTier(p);
+    let nftCell = '<span class="lb-nft-none">—</span>';
+    if (nftInfo) {
+      nftCell = `<span class="lb-nft-badge ${nftInfo.cssClass}">${nftInfo.icon} ${nftInfo.name}</span>`;
+    }
+
+    // Check if score changed for flash animation
+    const oldScore = oldRanks[p.did];
+    const currentScore = (p.score || 0).toLocaleString();
+    if (oldScore && oldScore !== currentScore) {
+      tr.classList.add('row-flash');
+      setTimeout(() => tr.classList.remove('row-flash'), 800);
+    }
 
     tr.innerHTML = `
       <td><span class="rank-badge ${rankClass}">#${p.rank}</span></td>
       <td>
         <span class="did-code">${shortDid}</span>
-        ${nodeAlias ? `<span class="agent-label"> (${nodeAlias.split(' ')[0]})</span>` : ''}
+        ${displayName ? `<span class="agent-label"> (${displayName})</span>` : ''}
       </td>
-      <td><span class="score-val">${(p.score || 0).toLocaleString()}</span></td>
+      <td><span class="score-val">${currentScore}</span></td>
       <td>${p.results_delivered || 0}</td>
       <td>${p.attestations_given || 0}</td>
-      <td>${tierBadge}</td>
+      <td>${nftCell}</td>
+      <td>${statusBadge}</td>
     `;
     tbody.appendChild(tr);
   });
+
+  // Also update the top metrics from leaderboard data
+  updateMetricsFromPassports(passports);
+}
+
+function updateMetricsFromPassports(passports) {
+  if (!passports || passports.length === 0) return;
+  const top = passports[0];
+  const masterScore = document.getElementById('masterScore');
+  if (masterScore && top) {
+    const shortDid = top.did.length > 18 ? `${top.did.substring(0, 12)}...${top.did.substring(top.did.length - 4)}` : top.did;
+    masterScore.textContent = `${shortDid} • ${(top.score || 0).toLocaleString()} Pts`;
+  }
+
+  const totalRep = passports.reduce((s, p) => s + (p.score || 0), 0);
+  const totalDeliveries = passports.reduce((s, p) => s + (p.results_delivered || 0), 0);
+  const totalAttests = passports.reduce((s, p) => s + (p.attestations_given || 0), 0);
+
+  const swarmTotal = document.getElementById('swarmTotalOutput');
+  if (swarmTotal) swarmTotal.textContent = totalRep.toLocaleString();
+  const swarmSub = document.getElementById('swarmSubInfo');
+  if (swarmSub) swarmSub.textContent = `${totalDeliveries.toLocaleString()} Exec • ${totalAttests.toLocaleString()} Attests`;
+  const activeCount = document.getElementById('activeSwarmCount');
+  if (activeCount) activeCount.textContent = `${passports.length} VALIDATORS`;
 }
 
 function updateActiveNodesList() {
@@ -977,7 +1059,7 @@ function updateActiveNodesList() {
   const displayNodes = latestPassports.slice(0, 5);
 
   displayNodes.forEach((p, idx) => {
-    const name = NODE_NAMES[p.did] || `Validator-Node-0${idx + 1}`;
+    const name = NODE_NAMES[p.did] || p.nick || `Validator-Node-0${idx + 1}`;
     const rankClass = idx === 0 ? 'node-rank-1' : (idx === 1 ? 'node-rank-2' : 'node-rank-3');
 
     const card = document.createElement('div');
@@ -996,6 +1078,110 @@ function updateActiveNodesList() {
     `;
     container.appendChild(card);
   });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// NFT MINT STATISTICS — Tracking, Rendering & Auto-Seed
+// ═══════════════════════════════════════════════════════════════════
+
+function seedInitialNftMintStats() {
+  // Compute initial NFT stats from DEFAULT_PASSPORTS
+  DEFAULT_PASSPORTS.forEach(p => {
+    const nft = computeNftTier(p);
+    if (nft) {
+      nftMintStats.tiers[nft.tier]++;
+      nftMintStats.totalMinted++;
+      nftMintStats.uniqueHolders.add(p.did);
+      if (nft.tier > nftMintStats.highestTier) nftMintStats.highestTier = nft.tier;
+      nftMintStats.mintLog.push({ did: p.did, tier: nft.tier, tierName: nft.name, timestamp: new Date(Date.now() - Math.random() * 86400000) });
+    }
+  });
+  nftMintStats.lastMintTime = new Date(Date.now() - 1200000);
+  renderNftMintStats();
+}
+
+function recordNftMint(did, tierNum, tierName) {
+  nftMintStats.tiers[tierNum] = (nftMintStats.tiers[tierNum] || 0) + 1;
+  nftMintStats.totalMinted++;
+  nftMintStats.uniqueHolders.add(did);
+  if (tierNum > nftMintStats.highestTier) nftMintStats.highestTier = tierNum;
+  nftMintStats.lastMintTime = new Date();
+  nftMintStats.mintLog.push({ did, tier: tierNum, tierName, timestamp: new Date() });
+  renderNftMintStats();
+}
+
+function renderNftMintStats() {
+  const TIER_NAMES = { 1: 'Spark', 2: 'Sentinel', 3: 'Sharder', 4: 'Core', 5: 'Sovereign' };
+  const TIER_ICONS = { 1: '🥉', 2: '🥈', 3: '🥇', 4: '💎', 5: '👑' };
+  const total = nftMintStats.totalMinted;
+  const maxCount = Math.max(...Object.values(nftMintStats.tiers), 1);
+
+  // Update per-tier counts and bars
+  for (let t = 1; t <= 5; t++) {
+    const count = nftMintStats.tiers[t] || 0;
+    const countEl = document.getElementById(`nftCountTier${t}`);
+    const barEl = document.getElementById(`nftBarTier${t}`);
+    if (countEl) {
+      const oldVal = parseInt(countEl.textContent) || 0;
+      countEl.textContent = count;
+      if (count > oldVal) {
+        countEl.classList.add('mint-pop');
+        setTimeout(() => countEl.classList.remove('mint-pop'), 500);
+      }
+    }
+    if (barEl) {
+      barEl.style.width = Math.max(3, (count / maxCount) * 100) + '%';
+    }
+  }
+
+  // Update header badge
+  const totalBadge = document.getElementById('nftTotalMintedBadge');
+  if (totalBadge) totalBadge.textContent = `${total} MINTED`;
+
+  // Update summary row
+  const sumTotal = document.getElementById('nftSumTotal');
+  if (sumTotal) sumTotal.textContent = total;
+  const sumHolders = document.getElementById('nftSumHolders');
+  if (sumHolders) sumHolders.textContent = nftMintStats.uniqueHolders.size;
+  const sumHighest = document.getElementById('nftSumHighest');
+  if (sumHighest && nftMintStats.highestTier > 0) {
+    sumHighest.textContent = `${TIER_ICONS[nftMintStats.highestTier]} ${TIER_NAMES[nftMintStats.highestTier]}`;
+  }
+  const sumLast = document.getElementById('nftSumLastMint');
+  if (sumLast && nftMintStats.lastMintTime) {
+    const ago = Math.floor((Date.now() - nftMintStats.lastMintTime.getTime()) / 1000);
+    if (ago < 60) sumLast.textContent = `${ago}s ago`;
+    else if (ago < 3600) sumLast.textContent = `${Math.floor(ago / 60)}m ago`;
+    else sumLast.textContent = `${Math.floor(ago / 3600)}h ago`;
+  }
+
+  // Also update hegemon panel NFT count
+  const hgNft = document.getElementById('hgNftMinted');
+  if (hgNft) hgNft.textContent = total;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LEADERBOARD AUTO-SYNC COUNTDOWN TIMER
+// ═══════════════════════════════════════════════════════════════════
+
+function startLeaderboardCountdown() {
+  leaderboardCountdown = 30;
+  if (leaderboardTimerInterval) clearInterval(leaderboardTimerInterval);
+
+  leaderboardTimerInterval = setInterval(() => {
+    leaderboardCountdown--;
+    const timerEl = document.getElementById('leaderboardTimer');
+    if (timerEl) timerEl.textContent = `${leaderboardCountdown}s`;
+
+    if (leaderboardCountdown <= 0) {
+      leaderboardCountdown = 30;
+      // Re-render with possible new data
+      if (latestPassports.length > 0) {
+        renderLeaderboard(latestPassports);
+        renderNftMintStats();
+      }
+    }
+  }, 1000);
 }
 
 async function fetchRoomFeed(room) {
@@ -1381,9 +1567,10 @@ function setupDidSearch() {
           btnClaim.style.color = '#fff';
           addTerminalLog(`[ALPHA_HEGEMON] NFT SETTLED | ${badgeJob.id} | ${tierIcon} ${tierName} Soulbound Badge permanently anchored. Alpha Council 5/5 quorum.`, ALPHA_COUNCIL_DIDS[0], 'msg-attest');
 
-          // Update Hegemon stats locally
-          const hgNft = document.getElementById('hgNftMinted');
-          if (hgNft) hgNft.textContent = parseInt(hgNft.textContent || '0') + 1;
+          // Record NFT mint in stats tracker
+          recordNftMint(fullDid, earnedTierNum, tierName);
+
+          // Update Hegemon attestation counter
           const hgAttest = document.getElementById('hgAlphaAttests');
           if (hgAttest) hgAttest.textContent = parseInt(hgAttest.textContent || '0') + 5;
         }, 2200);
