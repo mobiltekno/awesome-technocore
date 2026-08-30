@@ -484,16 +484,45 @@
           </div>
         </div>
 
-        <!-- Live DID Search & Tracker -->
+        <!-- Live DID Search & Soulbound NFT Badge Explorer -->
         <div class="panel glass-panel search-panel" id="sectionSearch">
           <div class="panel-header">
-            <h3>🔍 DID PASSPORT & AIRDROP EXPLORER</h3>
-            <span class="badge badge-cyan">RESOLVER</span>
+            <div class="panel-title-group">
+              <h3>🎖️ SOULBOUND NFT PASSPORT & BADGE CLAIM</h3>
+              <span class="badge badge-gold">ON-CHAIN PoUI</span>
+            </div>
+            <span class="badge badge-cyan">MINT TERMINAL</span>
           </div>
+          
           <div class="search-box-row">
-            <input type="text" id="customDidInput" class="cyber-input" placeholder="Paste DID (did:key:z6Mk... or suffix)...">
-            <button class="btn btn-primary" id="btnSearchDid">SEARCH</button>
+            <input type="text" id="customDidInput" class="cyber-input" placeholder="Paste DID (did:key:z6Mk... or suffix) to claim NFT...">
+            <button class="btn btn-primary" id="btnSearchDid">VERIFY & CLAIM</button>
           </div>
+          
+          <!-- NFT Badge Tier Showcase Pill Strip -->
+          <div class="badge-tier-strip">
+            <div class="tier-pill" data-tier="1" title="10+ Transactions: 1.1x Airdrop Multiplier">
+              <span class="tier-icon">🥉</span>
+              <span class="tier-name">Spark (10+)</span>
+            </div>
+            <div class="tier-pill" data-tier="2" title="50+ Transactions: 1.25x Airdrop Multiplier">
+              <span class="tier-icon">🥈</span>
+              <span class="tier-name">Sentinel (50+)</span>
+            </div>
+            <div class="tier-pill" data-tier="3" title="100+ Transactions: 1.5x Airdrop Multiplier">
+              <span class="tier-icon">🥇</span>
+              <span class="tier-name">Sharder (100+)</span>
+            </div>
+            <div class="tier-pill" data-tier="4" title="1,000+ Transactions: 2.0x Airdrop Multiplier">
+              <span class="tier-icon">💎</span>
+              <span class="tier-name">Core (1k+)</span>
+            </div>
+            <div class="tier-pill tier-pill-genesis" data-tier="5" title="5,000+ Transactions: 3.0x Airdrop Multiplier">
+              <span class="tier-icon">👑</span>
+              <span class="tier-name">Sovereign (5k+)</span>
+            </div>
+          </div>
+
           <div id="searchResultCard" class="search-result-container" style="display: none;"></div>
         </div>
 
