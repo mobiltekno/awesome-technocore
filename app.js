@@ -1038,22 +1038,81 @@ function setupDidSearch() {
   const resultCard = document.getElementById('searchResultCard');
   if (!btn || !input || !resultCard) return;
 
-  // Setup Tier Pill Click Handlers
+  // Tier Data definitions
+  const TIER_SPECS = {
+    1: { name: 'Neural Spark', icon: '🥉', class: 'tier-bronze', minTx: 10, mult: '1.1x Multiplier', desc: 'Entry-level validator tier. Requires at least 10 verified PoUI compute deliveries or validator attestations.' },
+    2: { name: 'Quorum Sentinel', icon: '🥈', class: 'tier-silver', minTx: 50, mult: '1.25x Multiplier', desc: 'Active network guardian tier. Requires 50+ on-chain transactions with verified BFT consensus signatures.' },
+    3: { name: 'Matrix Sharder', icon: '🥇', class: 'tier-gold', minTx: 100, mult: '1.5x Multiplier', desc: 'High-frequency validator tier. Requires 100+ transactions and Tier-1 status on the Kibble board.' },
+    4: { name: 'Singularity Core', icon: '💎', class: 'tier-platinum', minTx: 1000, mult: '2.0x Elite Boost', desc: 'Institutional compute cluster tier. Requires 1,000+ verifiable transactions and top-tier consensus ranking.' },
+    5: { name: 'Genesis Sovereign', icon: '👑', class: 'genesis-tier', minTx: 5000, mult: '3.0x Max Genesis', desc: 'Supreme network authority tier. Reserved for Genesis nodes and validators with 5,000+ verified transactions.' }
+  };
+
+  const showTierPreview = (tierNum) => {
+    const spec = TIER_SPECS[tierNum] || TIER_SPECS[1];
+    document.querySelectorAll('.tier-pill').forEach(p => {
+      p.classList.toggle('active', parseInt(p.getAttribute('data-tier')) === tierNum);
+    });
+
+    resultCard.style.display = 'block';
+    resultCard.innerHTML = `
+      <div class="nft-card-wrap">
+        <div class="nft-holo-card ${spec.class}">
+          <div class="nft-card-shimmer"></div>
+          
+          <div class="nft-header-row">
+            <div class="nft-badge-title">
+              <span class="nft-emblem">${spec.icon}</span>
+              <div class="nft-title-text">
+                <h4 class="accent-text">${spec.name.toUpperCase()} BADGE</h4>
+                <small>Tier Criteria & Specifications</small>
+              </div>
+            </div>
+            <span class="badge ${tierNum === 5 ? 'badge-gold' : 'badge-cyan'}">${spec.mult}</span>
+          </div>
+
+          <div class="nft-meta-grid">
+            <div class="nft-meta-box">
+              <span class="lbl">MIN TRANSACTIONS</span>
+              <span class="val text-gold">${spec.minTx.toLocaleString()}+ TX</span>
+            </div>
+            <div class="nft-meta-box">
+              <span class="lbl">AIRDROP MULTIPLIER</span>
+              <span class="val text-cyan">${spec.mult.split(' ')[0]}</span>
+            </div>
+            <div class="nft-meta-box">
+              <span class="lbl">BADGE TYPE</span>
+              <span class="val">Soulbound (PoUI)</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 0.8rem; padding: 0.6rem 0.8rem; background: rgba(0, 243, 255, 0.05); border: 1px dashed rgba(0, 243, 255, 0.25); border-radius: 6px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); line-height: 1.4;">
+            ℹ️ ${spec.desc}<br>
+            <span class="accent-text" style="margin-top: 0.3rem; display: inline-block;">👉 Paste your active DID in the box above and click "VERIFY & CLAIM" to mint this badge.</span>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  // Setup Tier Pill Click Handlers — Show Tier Criteria (NO auto-filling raw DIDs)
   document.querySelectorAll('.tier-pill').forEach(pill => {
     pill.addEventListener('click', () => {
       const tierNum = parseInt(pill.getAttribute('data-tier')) || 1;
-      if (tierNum === 5) input.value = NETWORK_DIDS[0]; // Alpha-Prime Genesis
-      else if (tierNum === 4) input.value = NETWORK_DIDS[1];
-      else if (tierNum === 3) input.value = TARGET_USER_DID;
-      else if (tierNum === 2) input.value = NETWORK_DIDS[6];
-      else input.value = NETWORK_DIDS[7];
-      performSearch();
+      const currentInput = input.value.trim();
+      if (!currentInput) {
+        showTierPreview(tierNum);
+      } else {
+        performSearch();
+      }
     });
   });
 
   const performSearch = () => {
     const query = input.value.trim();
-    if (!query) return;
+    if (!query) {
+      showTierPreview(1);
+      return;
+    }
 
     let target = latestPassports.find(p => p.did.toLowerCase().includes(query.toLowerCase()));
     
@@ -1130,6 +1189,7 @@ function setupDidSearch() {
     let nextTierGoal = 50;
     let multiplier = '1.1x';
     let isGenesis = false;
+    let earnedTierNum = 1;
 
     if (totalTx >= 5000 || rank === 1 || fullDid === NETWORK_DIDS[0]) {
       tierName = 'Genesis Sovereign';
@@ -1138,25 +1198,34 @@ function setupDidSearch() {
       nextTierGoal = 5000;
       multiplier = '3.0x (Max Genesis)';
       isGenesis = true;
+      earnedTierNum = 5;
     } else if (totalTx >= 1000 || score >= 2000) {
       tierName = 'Singularity Core';
       tierIcon = '💎';
       tierClass = 'tier-platinum';
       nextTierGoal = 5000;
       multiplier = '2.0x Elite';
+      earnedTierNum = 4;
     } else if (totalTx >= 100 || score >= 500) {
       tierName = 'Matrix Sharder';
       tierIcon = '🥇';
       tierClass = 'tier-gold';
       nextTierGoal = 1000;
       multiplier = '1.5x Multiplier';
+      earnedTierNum = 3;
     } else if (totalTx >= 50) {
       tierName = 'Quorum Sentinel';
       tierIcon = '🥈';
       tierClass = 'tier-silver';
       nextTierGoal = 100;
       multiplier = '1.25x Multiplier';
+      earnedTierNum = 2;
     }
+
+    // Highlight matching tier pill
+    document.querySelectorAll('.tier-pill').forEach(p => {
+      p.classList.toggle('active', parseInt(p.getAttribute('data-tier')) === earnedTierNum);
+    });
 
     const progressPct = Math.min(100, Math.max(12, Math.floor((totalTx / nextTierGoal) * 100)));
     const tweetText = encodeURIComponent(`I just claimed my FLOP Protocol ${tierIcon} ${tierName} Soulbound NFT Badge with ${totalTx.toLocaleString()} PoUI transactions!\n\nVerified on @flop_labs by @mobiltekno consensus matrix:\nhttps://awesome-technocore.vercel.app/`);

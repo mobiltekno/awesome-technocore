@@ -1023,7 +1023,19 @@ body {
   transition: all 0.2s ease;
 }
 .tier-pill:hover { border-color: var(--cyan-primary); background: rgba(0, 243, 255, 0.08); }
+.tier-pill.active {
+  border-color: var(--cyan-primary);
+  background: rgba(0, 243, 255, 0.15);
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
+}
+.tier-pill.active .tier-name { color: var(--text-main); }
 .tier-pill-genesis { border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08); }
+.tier-pill-genesis.active {
+  border-color: var(--gold-accent);
+  background: rgba(245, 158, 11, 0.18);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+}
+.tier-pill-genesis.active .tier-name { color: var(--gold-accent); }
 .tier-icon { font-size: 0.85rem; }
 .tier-name { color: var(--text-dim); font-weight: 700; white-space: nowrap; }
 
