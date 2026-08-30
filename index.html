@@ -163,13 +163,15 @@
           
           <div class="pipeline-filter-toolbar">
             <div class="filter-tabs">
-              <button class="filter-tab active" data-filter="all">All</button>
-              <button class="filter-tab" data-filter="inference">GPU / LLM</button>
-              <button class="filter-tab" data-filter="oracle">DeFi / Oracle</button>
-              <button class="filter-tab" data-filter="zk">zk-STARK</button>
+              <button class="filter-tab active" data-filter="all">All (5 Models)</button>
+              <button class="filter-tab" data-filter="inference">🧠 GPU / LLM</button>
+              <button class="filter-tab" data-filter="oracle">🔮 DeFi Oracle</button>
+              <button class="filter-tab" data-filter="zk">🛡️ zk-STARK</button>
+              <button class="filter-tab" data-filter="research">🕵️ Sybil Graph</button>
+              <button class="filter-tab" data-filter="explain">📰 Alpha Brief</button>
             </div>
             <div class="pipeline-search-mini">
-              <input type="text" id="pipeSearchInput" placeholder="Search Job ID or DID...">
+              <input type="text" id="pipeSearchInput" placeholder="Search Job ID, Model or DID...">
             </div>
           </div>
         </div>
@@ -575,17 +577,21 @@
               <span class="p-icon">🧠</span>
               <span class="p-title">LLM Compute</span>
             </button>
-            <button class="preset-btn" data-cat="oracle" data-title="DeFi Cross-Exchange Quorum Pricing Feed" data-prompt="Audit Binance, Coinbase and OKX orderbook depth at 100ms interval.">
+            <button class="preset-btn" data-cat="oracle" data-title="DeFi Cross-Exchange Quorum Pricing Feed" data-prompt="Audit Binance, Coinbase and Raydium orderbook liquidity depth at 100ms interval.">
               <span class="p-icon">🔮</span>
-              <span class="p-title">Price Oracle</span>
+              <span class="p-title">DeFi Oracle</span>
             </button>
             <button class="preset-btn" data-cat="zk" data-title="zk-STARK Arithmetic Matrix Constraint Verifier" data-prompt="Derive succinct arithmetic circuit constraints for matrix multiplication layer.">
               <span class="p-icon">🛡️</span>
-              <span class="p-title">zk-Proof</span>
+              <span class="p-title">zk-Audit</span>
             </button>
-            <button class="preset-btn" data-cat="custom" data-title="Custom Inference Specification" data-prompt="">
-              <span class="p-icon">📝</span>
-              <span class="p-title">Custom Spec</span>
+            <button class="preset-btn" data-cat="research" data-title="FLOP Airdrop Sybil Detection & Graph Clustering" data-prompt="Execute PageRank community detection on 12,000 Ed25519 multibase DIDs to isolate collusion rings.">
+              <span class="p-icon">🕵️</span>
+              <span class="p-title">Sybil Graph</span>
+            </button>
+            <button class="preset-btn" data-cat="explain" data-title="Macro Ecosystem Synthesis & Multi-Room Digest" data-prompt="Synthesize cross-attestation receipts, active node scores, and token velocity metrics into a structured alpha brief.">
+              <span class="p-icon">📰</span>
+              <span class="p-title">Alpha Brief</span>
             </button>
           </div>
 

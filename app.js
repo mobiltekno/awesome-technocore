@@ -67,13 +67,27 @@ const pipelineState = {
 };
 
 const SAMPLE_TASKS = [
-  { cat: 'inference', title: 'DeepSeek-Coder: Distributed Consensus Optimizer in Ed25519', prompt: 'Analyze Byzantine fault resilience when 2 out of 5 nodes suffer 400ms network partitions.', bounty: '35.0 FLOP' },
-  { cat: 'zk', title: 'zk-STARK: Mathematical Proof for Matrix Multiplication Constraints', prompt: 'Derive succinct arithmetic circuit constraints for matrix multiplication layer.', bounty: '50.0 FLOP' },
-  { cat: 'oracle', title: 'DeFi Cross-Exchange Quorum Pricing Feed (BTC/ETH/SOL)', prompt: 'Audit Binance, Coinbase and OKX orderbook depth at 100ms interval.', bounty: '15.0 FLOP' },
-  { cat: 'inference', title: 'Llama-3-70B: Technocore Living Memory Vector Embeddings', prompt: 'Compute dense 1536-dim embeddings for all room broadcast events #740000-#741000.', bounty: '25.0 FLOP' },
-  { cat: 'oracle', title: 'FLOP Genesis Airdrop Sybil Detection & Graph Clustering', prompt: 'Execute PageRank community detection on 12,000 Ed25519 multibase DIDs.', bounty: '60.0 FLOP' },
-  { cat: 'inference', title: 'Qwen-2.5: GPU Memory Sharding & Parallel Inference Benchmark', prompt: 'Benchmark KV-cache compression across 8x H100 SXM5 nodes with TensorRT-LLM.', bounty: '45.0 FLOP' },
-  { cat: 'zk', title: 'Ed25519 Ring Signature Aggregation & Batch Verification', prompt: 'Verify 64 independent Ed25519 signatures in a single cryptographic batch pass.', bounty: '40.0 FLOP' }
+  // 1. DeFi & Arbitrage Oracle
+  { cat: 'oracle', title: 'DeFi Cross-Exchange Quorum Pricing Feed (BTC/ETH/SOL)', prompt: 'Audit Binance, Coinbase and Raydium orderbook liquidity depth at 100ms interval. Compute VWAP with outlier rejection.', bounty: '25.0 FLOP' },
+  { cat: 'oracle', title: 'Automated Flash-Loan Risk & Slippage Boundary Indexer', prompt: 'Calculate dynamic borrow rate volatility index across Solana lending pools during high-congestion epochs.', bounty: '30.0 FLOP' },
+  
+  // 2. Distributed LLM & Vector Mining
+  { cat: 'inference', title: 'DeepSeek-Coder: Distributed Consensus Optimizer in Ed25519', prompt: 'Analyze Byzantine fault resilience when 2 out of 5 nodes suffer 400ms network partitions. Generate formal bounds.', bounty: '35.0 FLOP' },
+  { cat: 'inference', title: 'Llama-3-70B: Technocore Living Memory Vector Embeddings', prompt: 'Compute dense 1536-dim embeddings for room events #740000-#741000 and build hierarchical HNSW vector indices.', bounty: '45.0 FLOP' },
+  { cat: 'inference', title: 'Qwen-2.5: GPU Memory Sharding & Parallel Inference Benchmark', prompt: 'Benchmark KV-cache compression across 8x H100 SXM5 nodes with TensorRT-LLM 4-bit weight quantization.', bounty: '50.0 FLOP' },
+  
+  // 3. zk-STARK & Smart Contract Security Audit
+  { cat: 'zk', title: 'zk-STARK: Mathematical Proof for Matrix Multiplication Constraints', prompt: 'Derive succinct arithmetic circuit constraints for matrix multiplication layer in zero-knowledge neural inference.', bounty: '55.0 FLOP' },
+  { cat: 'zk', title: 'Formal Bytecode Audit of Cross-Program Invocation Guards', prompt: 'Formally verify reentrancy locks and invariant preservation across asynchronous Solana CPI invocations.', bounty: '40.0 FLOP' },
+  { cat: 'zk', title: 'Ed25519 Ring Signature Aggregation & Batch Verification', prompt: 'Verify 64 independent Ed25519 signatures in a single unified cryptographic batch pass.', bounty: '40.0 FLOP' },
+  
+  // 4. Sybil Resistance & Graph Intelligence
+  { cat: 'research', title: 'FLOP Airdrop Sybil Detection & Graph Clustering', prompt: 'Execute PageRank community detection on 12,000 Ed25519 multibase DIDs to isolate synthetic collusion rings.', bounty: '60.0 FLOP' },
+  { cat: 'research', title: 'Monotonic Nonce & Timestamp Drift Verification across Gossip Peers', prompt: 'Evaluate replay attack resistance under 100ms clock skew across multi-region validator topologies.', bounty: '35.0 FLOP' },
+  
+  // 5. Autonomous Ecosystem Brief & Alpha Synthesis
+  { cat: 'explain', title: 'Macro Ecosystem Synthesis & Multi-Room Consensus Digest', prompt: 'Synthesize all cross-attestation receipts, active node scores, and token velocity metrics into a structured alpha brief.', bounty: '30.0 FLOP' },
+  { cat: 'explain', title: 'Deterministic KV Sharding & Storage Partition Routing', prompt: 'Explain and benchmark deterministic SHA256 sharding for non-colliding room note retention.', bounty: '25.0 FLOP' }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -486,6 +500,10 @@ function renderPipelineUI() {
       filtered = filtered.filter(j => j.category === 'oracle');
     } else if (activeFilter === 'zk') {
       filtered = filtered.filter(j => j.category === 'zk');
+    } else if (activeFilter === 'research') {
+      filtered = filtered.filter(j => j.category === 'research');
+    } else if (activeFilter === 'explain') {
+      filtered = filtered.filter(j => j.category === 'explain');
     }
 
     if (searchQuery) {
