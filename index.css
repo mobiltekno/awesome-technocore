@@ -1475,4 +1475,272 @@ body {
     padding: 1.1rem 1rem 2rem 1rem;
     margin-top: 1rem;
   }
+
+  .hegemon-metrics-row { grid-template-columns: 1fr 1fr; }
+  .council-fleet { grid-template-columns: 1fr; }
+  .council-prime { grid-column: 1; }
+  .evo-label { min-width: 55px; font-size: 0.55rem; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* ALPHA HEGEMON COMMAND CENTER — Supreme Authority Visual System     */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+/* Hegemon Panel */
+.hegemon-panel {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 0 4px 24px rgba(245, 158, 11, 0.1), inset 0 0 30px rgba(245, 158, 11, 0.03);
+}
+
+.badge-hegemon-prime {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+  color: var(--gold-accent);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-size: 0.58rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  animation: hegemonPulse 2s infinite;
+}
+
+@keyframes hegemonPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.6); }
+}
+
+/* Hegemon Metrics Row */
+.hegemon-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.hegemon-metric-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: border-color 0.2s ease;
+}
+.hegemon-metric-card:hover { border-color: rgba(245, 158, 11, 0.3); }
+
+.metric-dominance {
+  border-color: rgba(245, 158, 11, 0.25);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(0, 0, 0, 0.4));
+}
+
+.hegemon-metric-icon { font-size: 1.1rem; }
+.hegemon-metric-body { display: flex; flex-direction: column; gap: 0.1rem; }
+.hegemon-metric-label { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); font-weight: 700; letter-spacing: 0.03em; }
+.hegemon-metric-val { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 900; }
+.text-red { color: var(--red-alert); }
+
+/* Dominance Bar */
+.dominance-bar-track {
+  width: 100%;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.2rem;
+}
+.dominance-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-accent), #ef4444, var(--purple-accent));
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+
+/* Alpha Council Fleet */
+.council-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.council-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.council-title {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.council-fleet {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+}
+
+.council-card {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0, 243, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.55rem 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+.council-card:hover {
+  border-color: rgba(0, 243, 255, 0.35);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.1);
+}
+
+.council-prime {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(0, 0, 0, 0.35));
+  grid-column: 1;
+}
+.council-prime:hover {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+}
+
+.council-rank { font-size: 1.1rem; flex-shrink: 0; }
+.council-info { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.council-name { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 800; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.council-did { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); }
+.council-weight { font-family: var(--font-mono); font-size: 0.55rem; font-weight: 800; color: var(--gold-accent); }
+
+.council-pulse {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--green-status);
+  border-radius: 50%;
+  animation: councilBlink 2s infinite;
+}
+.prime-pulse {
+  background: var(--gold-accent);
+  animation: primeBlink 1.5s infinite;
+}
+
+@keyframes councilBlink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--green-glow); }
+  50% { opacity: 0.4; }
+}
+@keyframes primeBlink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--gold-glow); }
+  50% { opacity: 0.5; box-shadow: 0 0 14px var(--gold-glow); }
+}
+
+/* Evolutionary Strategy */
+.evolution-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.8rem;
+}
+.evolution-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.evolution-title {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.evolution-bars { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.evo-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.evo-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  min-width: 70px;
+}
+.evo-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.evo-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.evo-oracle    { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.evo-inference { background: linear-gradient(90deg, #00f3ff, #0ea5e9); }
+.evo-zk        { background: linear-gradient(90deg, #a855f7, #7c3aed); }
+.evo-research  { background: linear-gradient(90deg, #10b981, #059669); }
+.evo-nft       { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+
+.evo-weight {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  min-width: 30px;
+  text-align: right;
+}
+
+/* Alpha Authority Badges on Pipeline Cards */
+.badge-alpha-verified {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(239, 68, 68, 0.2));
+  color: var(--gold-accent);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  font-size: 0.52rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  animation: alphaGlow 2s infinite;
+}
+
+@keyframes alphaGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(245, 158, 11, 0.2); }
+  50% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+}
+
+.badge-council-quorum {
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(168, 85, 247, 0.2));
+  color: var(--cyan-primary);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  font-size: 0.52rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.badge-pending-alpha {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-dim);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  font-size: 0.52rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+/* Cascade Rejection Card Style */
+.pipe-card.cascade-rejected {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(0, 0, 0, 0.3));
+}
+.pipe-card.cascade-rejected .card-desc { text-decoration: line-through; opacity: 0.5; }

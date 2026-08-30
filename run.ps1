@@ -1,12 +1,12 @@
-﻿# FLOP Agent & 5x Swarm - Calistirma Scripti
-# Kullanim: .\run.ps1       (interaktif numarali menu)
-#           .\run.ps1 15    (15: 5'li Swarm Otonom Puan Fabrikasi)
-#           .\run.ps1 12    (12: Tekli 7/24 Otonom Puan Motoru)
-#           .\run.ps1 11    (11: Ag onay kanitlari ve linkler)
-#           .\run.ps1 13    (13: Manuel Validator Denetleme Konsolu)
-#           .\run.ps1 14    (14: Oracle Fiyat Dogrulayicisi)
-#           .\run.ps1 3     (3:  Kibble is panosu ve liderlik tablosu)
+# FLOP Agent & 5x Swarm - Calistirma Scripti (PowerShell)
+# 5 Otonom Is Modeli ve Puan Motoru
 
-$env:Path = "C:\Users\Tz Grup\.local\bin;$env:Path"
-Set-Location "C:\Users\Tz Grup\technocore-agent"
-uv run --python 3.12 flop_agent.py @args
+$OutputEncoding = [System.Text.Encoding]::UTF8
+Set-Location $PSScriptRoot
+
+Write-Host "==============================================================================" -ForegroundColor Cyan
+Write-Host "  TECHNOCORE HYPER-SWARM - 5'LI OTONOM IS MODELI VE PUAN MOTORU V3.0" -ForegroundColor Yellow
+Write-Host "  Alpha-Prime ve 4 Dogrulayici Dugum Calistiriliyor..." -ForegroundColor Green
+Write-Host "==============================================================================" -ForegroundColor Cyan
+
+python -u swarm_engine.py

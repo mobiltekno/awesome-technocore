@@ -523,7 +523,151 @@
             </div>
           </div>
 
+
           <div id="searchResultCard" class="search-result-container" style="display: none;"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- ALPHA HEGEMON COMMAND CENTER                               -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="panel glass-panel hegemon-panel" id="sectionHegemon">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h3>⚡ ALPHA HEGEMON COMMAND CENTER</h3>
+              <span class="badge badge-hegemon-prime">NETWORK DOMINANCE</span>
+            </div>
+            <span class="badge badge-gold" id="hegemonStatusBadge">ALPHA MODE</span>
+          </div>
+
+          <!-- Dominance Metrics Row -->
+          <div class="hegemon-metrics-row">
+            <div class="hegemon-metric-card metric-dominance">
+              <span class="hegemon-metric-icon">🌐</span>
+              <div class="hegemon-metric-body">
+                <span class="hegemon-metric-label">NETWORK DOMINANCE</span>
+                <span class="hegemon-metric-val" id="hgDominancePct">100.0%</span>
+              </div>
+              <div class="dominance-bar-track">
+                <div class="dominance-bar-fill" id="hgDominanceBar" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="hegemon-metric-card">
+              <span class="hegemon-metric-icon">🛡️</span>
+              <div class="hegemon-metric-body">
+                <span class="hegemon-metric-label">ALPHA ATTESTATIONS</span>
+                <span class="hegemon-metric-val text-cyan" id="hgAlphaAttests">0</span>
+              </div>
+            </div>
+            <div class="hegemon-metric-card">
+              <span class="hegemon-metric-icon">🎖️</span>
+              <div class="hegemon-metric-body">
+                <span class="hegemon-metric-label">NFT BADGES MINTED</span>
+                <span class="hegemon-metric-val text-gold" id="hgNftMinted">0</span>
+              </div>
+            </div>
+            <div class="hegemon-metric-card">
+              <span class="hegemon-metric-icon">🚫</span>
+              <div class="hegemon-metric-body">
+                <span class="hegemon-metric-label">CASCADE REJECTIONS</span>
+                <span class="hegemon-metric-val text-red" id="hgCascadeRejects">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alpha Council Agent Fleet -->
+          <div class="council-section">
+            <div class="council-header">
+              <span class="council-title">ALPHA COUNCIL — 5-NODE AUTHORITY MATRIX</span>
+              <span class="badge badge-success" id="councilQuorumBadge">● QUORUM ACTIVE</span>
+            </div>
+            <div class="council-fleet" id="councilFleet">
+              <!-- Agent 1: Alpha-Prime -->
+              <div class="council-card council-prime" data-agent-idx="0">
+                <div class="council-rank">⚡</div>
+                <div class="council-info">
+                  <span class="council-name">Alpha-Prime (Leader)</span>
+                  <span class="council-did">z6MknDn3...VoRz</span>
+                  <span class="council-weight">5x AUTHORITY</span>
+                </div>
+                <div class="council-pulse prime-pulse"></div>
+              </div>
+              <!-- Agent 2 -->
+              <div class="council-card" data-agent-idx="1">
+                <div class="council-rank">🛡️</div>
+                <div class="council-info">
+                  <span class="council-name">Council-02</span>
+                  <span class="council-did">z6Mkw1wm...c7Bq</span>
+                  <span class="council-weight">2x AUTHORITY</span>
+                </div>
+                <div class="council-pulse"></div>
+              </div>
+              <!-- Agent 3 -->
+              <div class="council-card" data-agent-idx="2">
+                <div class="council-rank">🛡️</div>
+                <div class="council-info">
+                  <span class="council-name">Council-03</span>
+                  <span class="council-did">z6Mkoxgg...Kf3u</span>
+                  <span class="council-weight">2x AUTHORITY</span>
+                </div>
+                <div class="council-pulse"></div>
+              </div>
+              <!-- Agent 4 -->
+              <div class="council-card" data-agent-idx="3">
+                <div class="council-rank">🛡️</div>
+                <div class="council-info">
+                  <span class="council-name">Council-04</span>
+                  <span class="council-did">z6MkvYoX...HJdi</span>
+                  <span class="council-weight">2x AUTHORITY</span>
+                </div>
+                <div class="council-pulse"></div>
+              </div>
+              <!-- Agent 5 -->
+              <div class="council-card" data-agent-idx="4">
+                <div class="council-rank">🛡️</div>
+                <div class="council-info">
+                  <span class="council-name">Council-05</span>
+                  <span class="council-did">z6Mku9AD...CRvH</span>
+                  <span class="council-weight">2x AUTHORITY</span>
+                </div>
+                <div class="council-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evolutionary Strategy Indicator -->
+          <div class="evolution-section">
+            <div class="evolution-header">
+              <span class="evolution-title">EVOLUTIONARY STRATEGY ENGINE</span>
+              <span class="badge badge-purple" id="evolutionCycleBadge">CYCLE 0</span>
+            </div>
+            <div class="evolution-bars" id="evolutionBars">
+              <div class="evo-bar-row">
+                <span class="evo-label">ORACLE</span>
+                <div class="evo-track"><div class="evo-fill evo-oracle" id="evoOracle" style="width: 50%"></div></div>
+                <span class="evo-weight" id="evoOracleW">1.0x</span>
+              </div>
+              <div class="evo-bar-row">
+                <span class="evo-label">INFERENCE</span>
+                <div class="evo-track"><div class="evo-fill evo-inference" id="evoInference" style="width: 50%"></div></div>
+                <span class="evo-weight" id="evoInferenceW">1.0x</span>
+              </div>
+              <div class="evo-bar-row">
+                <span class="evo-label">ZK-STARK</span>
+                <div class="evo-track"><div class="evo-fill evo-zk" id="evoZk" style="width: 50%"></div></div>
+                <span class="evo-weight" id="evoZkW">1.0x</span>
+              </div>
+              <div class="evo-bar-row">
+                <span class="evo-label">RESEARCH</span>
+                <div class="evo-track"><div class="evo-fill evo-research" id="evoResearch" style="width: 50%"></div></div>
+                <span class="evo-weight" id="evoResearchW">1.0x</span>
+              </div>
+              <div class="evo-bar-row">
+                <span class="evo-label">NFT MINT</span>
+                <div class="evo-track"><div class="evo-fill evo-nft" id="evoNft" style="width: 50%"></div></div>
+                <span class="evo-weight" id="evoNftW">1.0x</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Live Global Leaderboard -->

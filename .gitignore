@@ -5,3 +5,6 @@ AGENT_INFO.md
 *.log
 __pycache__/
 .venv/
+MASTER_PROJECT_MEMORY.md
+hegemon_state.json
+mint_queue.json
