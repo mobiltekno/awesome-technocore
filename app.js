@@ -910,8 +910,24 @@ const DEFAULT_PASSPORTS = [
 ];
 
 async function fetchBoardData() {
+  // Render immediately from defaults if no data yet (prevents empty leaderboard on load)
+  if (latestPassports.length === 0) {
+    latestPassports = [...DEFAULT_PASSPORTS]
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
+      .map((p, i) => ({ ...p, rank: i + 1 }));
+    lastUpdateTime = new Date();
+    renderLeaderboard(latestPassports);
+    updateActiveNodesList();
+  }
+
   try {
-    let res = await fetch(BOARD_API).catch(() => null);
+    // Use AbortController for fast timeout (5s) to avoid long hangs
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    let res = await fetch(BOARD_API, { signal: controller.signal }).catch(() => null);
+    clearTimeout(timeoutId);
+
     if (!res || !res.ok) {
       res = await fetch('kibble_board.json').catch(() => null);
     }
@@ -943,7 +959,9 @@ async function fetchBoardData() {
     }
   } catch (err) {
     console.warn('Board sync:', err);
-    latestPassports = [...DEFAULT_PASSPORTS].map((p, i) => ({ ...p, rank: i + 1 }));
+    if (latestPassports.length === 0) {
+      latestPassports = [...DEFAULT_PASSPORTS].map((p, i) => ({ ...p, rank: i + 1 }));
+    }
   }
 
   renderLeaderboard(latestPassports);
