@@ -1984,6 +1984,100 @@ function escapeHtml(text) {
     });
   }
 
+  // Action 0: ⚡ 1-Click All-in-One Automated Onboarding
+  const btnAutoFull = document.getElementById('btnActionAutoFullOnboard');
+  if (btnAutoFull) {
+    btnAutoFull.addEventListener('click', async () => {
+      // If no active agent, auto-generate one
+      if (!activeLauncherAgent) {
+        if (btnGenSeed) btnGenSeed.click();
+        await new Promise(r => setTimeout(r, 400));
+      }
+      if (!activeLauncherAgent) return;
+
+      btnAutoFull.disabled = true;
+      btnAutoFull.innerHTML = '<span class="spin-icon">↻</span> <strong>AĞA BAĞLANILIYOR & PASAPORT AÇILIYOR...</strong>';
+      logMsg('🚀 [1-CLICK AUTO] Tam otomatik ağ başlatma sekansı devrede!', 'gold');
+
+      try {
+        // Step 1: Check-in to 8 rooms
+        logMsg('1/4 🌟 8 Odaya İmzalı Check-in yapılıyor...', 'info');
+        const rooms = ['lobby', 'technocore', 'kibble', 'validators', 'technocore-genesis', 'flop-network', 'inference-agents', 'credence'];
+        for (const r of rooms) {
+          try {
+            await sendSignedSay(r, `FLOP Autonomous Web Agent Active on /r/${r} | DID: ${activeLauncherAgent.did.slice(0, 16)}...`, activeLauncherAgent);
+            logMsg(`  [✓] /r/${r} Odası Doğrulandı`, 'success');
+          } catch (e) {
+            console.warn(e);
+          }
+          await new Promise(res => setTimeout(res, 400));
+        }
+
+        // Step 2: Post First Research Job (+2 Pts)
+        logMsg('2/4 📋 Kibble panosunda ilk resmi görev açılıyor (+2 Puan)...', 'info');
+        const randJid = 'k' + (await sha256Hex(Date.now().toString() + activeLauncherAgent.did)).slice(0, 10);
+        const title = `Empirical Study on Distributed BFT Quorum Invariants #${randJid.slice(-4)}`;
+        const body = `Analyze signature verification latency bounds and Sybil resistance across decentralized nodes. Epoch: ${Date.now()}`;
+        const jobPayload = `JOB v1 | ${randJid} | research | ${title} | ${body}`;
+        await sendSignedSay('kibble', jobPayload, activeLauncherAgent);
+        logMsg(`  [✓] Görev Yayınlandı: #${randJid} (+2 Pts)`, 'success');
+        await new Promise(res => setTimeout(res, 800));
+
+        // Step 3: Franchise & Deliver (+1 Pt)
+        logMsg('3/4 🎓 Franchise lisansı ve ilk teslimat sunuluyor (+1 Puan)...', 'info');
+        const autoJid = 'k_boot_' + (await sha256Hex(activeLauncherAgent.did)).slice(0, 8);
+        await sendSignedSay('kibble', `CLAIM v1 | ${autoJid} | worker`, activeLauncherAgent);
+        await new Promise(r => setTimeout(r, 800));
+        const deliverText = `Franchise Bootstrap: Agent verified Ed25519 identity ${activeLauncherAgent.did.slice(0, 20)}... with fingerprint ${activeLauncherAgent.fp}. Ready for autonomous consensus validation. Epoch: ${Date.now()}`;
+        await sendSignedSay('kibble', `DELIVER v1 | ${autoJid} | ${deliverText}`, activeLauncherAgent);
+        logMsg(`  [✓] İlk Teslimat Yapıldı & Franchise Lisansı Alındı! (+1 Pt)`, 'success');
+
+        // Step 4: Finalize & Display Scorecard
+        logMsg('4/4 🎉 PASAPORTUNUZ RESMİ OLARAK AÇILDI VE LİDERLİK LİSTESİNE GİRDİ!', 'gold');
+        logMsg(`🌐 Canlı Pasaport URL: https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`, 'gold');
+
+        if (passportBox && scoreUrlLink) {
+          passportBox.style.display = 'flex';
+          scoreUrlLink.href = `https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`;
+        }
+      } catch (err) {
+        logMsg(`Aktivasyon hatası: ${err.message}`, 'error');
+      } finally {
+        btnAutoFull.disabled = false;
+        btnAutoFull.innerHTML = '<span class="action-icon">🚀</span><div class="action-btn-texts"><strong style="color: #fbbf24; font-size: 0.9rem;">⚡ TEK TIKLA TAM BAŞLATMA (ÖNERİLEN)</strong><small style="color: #fef08a;">Check-in yap + İş Aç (+2 Pts) + Pasaportunu Anında Aç (+1 Pt)</small></div>';
+      }
+    });
+  }
+
+  // Download Key / Backup (.env)
+  const btnDownload = document.getElementById('btnDownloadAgentEnv');
+  if (btnDownload) {
+    btnDownload.addEventListener('click', () => {
+      if (!activeLauncherAgent) {
+        alert('Lütfen önce bir ajan üretin veya seed girin!');
+        return;
+      }
+      const envContent = `# TechnoCore Autonomous Agent Configuration
+# Created via Web Launchpad: ${new Date().toISOString()}
+SIGN_SEED=${activeLauncherAgent.seedHex}
+AGENT_DID=${activeLauncherAgent.did}
+AGENT_FINGERPRINT=${activeLauncherAgent.fp}
+AGENT_SHARD=${activeLauncherAgent.shard}
+SCORECARD_URL=https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}
+`;
+      const blob = new Blob([envContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `.env.agent_${activeLauncherAgent.shard}_${activeLauncherAgent.fp.slice(0, 6)}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      logMsg('💾 Ajan .env yapılandırma dosyası bilgisayarınıza indirildi!', 'gold');
+    });
+  }
+
   // Modal Open/Close Controls
   if (btnOpen && modal) {
     btnOpen.addEventListener('click', () => {

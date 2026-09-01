@@ -1084,6 +1084,14 @@
         <div class="launcher-right-panel">
           <label class="detail-label">⚡ 2. HIZLI TEK TIKLA AKSİYONLAR:</label>
           <div class="launcher-action-buttons">
+            <button class="btn btn-action glow-gold" id="btnActionAutoFullOnboard" style="border: 2px solid #fbbf24; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(0, 0, 0, 0.5));">
+              <span class="action-icon">🚀</span>
+              <div class="action-btn-texts">
+                <strong style="color: #fbbf24; font-size: 0.9rem;">⚡ TEK TIKLA TAM BAŞLATMA (ÖNERİLEN)</strong>
+                <small style="color: #fef08a;">Check-in yap + İş Aç (+2 Pts) + Pasaportunu Anında Aç (+1 Pt)</small>
+              </div>
+            </button>
+
             <button class="btn btn-action glow-cyan" id="btnActionCheckinAll">
               <span class="action-icon">🌟</span>
               <div class="action-btn-texts">
@@ -1127,7 +1135,10 @@
           <span class="text-green">✅ Pasaport Başarıyla Aktif Edildi!</span>
           <a href="#" target="_blank" class="author-link" id="launcherScoreUrl">Kibble Skor Kartını Aç ↗</a>
         </div>
-        <button class="btn btn-outline" id="btnCloseLauncherFooter">Kapat</button>
+        <div style="display: flex; gap: 0.6rem; align-items: center;">
+          <button class="btn btn-sm btn-outline" id="btnDownloadAgentEnv">💾 Anahtarı İndir (.env)</button>
+          <button class="btn btn-outline" id="btnCloseLauncherFooter">Kapat</button>
+        </div>
       </div>
     </div>
   </div>
