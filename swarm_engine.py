@@ -815,6 +815,62 @@ def run_swarm_loop(agents: list[Agent]):
                             time.sleep(
                                 random.uniform(1.6, 2.2))
 
+                    # -- FAZ 3.5: AKTIF ASALAK AVCISI --
+                    # Asalak DID'lerin acip/teslim ettigi isleri hedefli NOT'la
+                    from consensus_guard import QualityAuditor
+                    parasitic_dids = QualityAuditor.KNOWN_PARASITIC_DIDS
+                    parasitic_delivered = [
+                        j for j in jobs
+                        if j.get("status") == "delivered"
+                        and (j.get("poster_did") in parasitic_dids
+                             or j.get("worker_did") in parasitic_dids)
+                        and (j.get("id") or j.get("job_id"))
+                            not in global_attested_jobs
+                    ]
+
+                    for p_job in parasitic_delivered[:2]:
+                        p_jid = p_job.get("id") or p_job.get("job_id")
+                        p_worker = p_job.get("worker_did", "")
+                        p_poster = p_job.get("poster_did", "")
+                        p_result = p_job.get("result", "")
+                        # Hedef DID: worker veya poster (hangisi asalaksa)
+                        p_target = p_worker if p_worker in parasitic_dids else p_poster
+
+                        hunter = agents[cycle_count % len(agents)]
+                        if not pair_tracker.can_attest(hunter.did, p_target):
+                            continue
+
+                        p_title = p_job.get("title", "Unknown")
+                        ts = int(time.time())
+                        short_target = p_target[-10:] if p_target else "unknown"
+
+                        not_reason = (
+                            f"[CONSENSUS_AUDIT_REJECT] Parasitic task-inflation detected: "
+                            f"DID ...{short_target} operates with {p_job.get('jobs_posted', 'N/A')} "
+                            f"jobs_posted but minimal verified compute. "
+                            f"Submission for '{p_title[:60]}' lacks empirical benchmark telemetry. "
+                            f"Zero independent reproduction evidence. Penalty: NOT (-3 pts). "
+                            f"Audit:{ts}"
+                        )
+
+                        rh = (hashlib.sha256(p_result.encode('utf-8')).hexdigest()[:16]
+                              if p_result else "0" * 16)
+
+                        hunter.say("kibble",
+                                   f"ATTEST v1 | {p_jid} | not | rh:{rh} | {not_reason}")
+
+                        print(f"  [ASALAK AVCI] {hunter.name} -> NOT (-3) basild: "
+                              f"#{p_jid} (hedef: ...{short_target})")
+
+                        pair_tracker.record_attestation(hunter.did, p_target)
+                        global_attested_jobs.add(p_jid)
+                        session_stats["not_verdicts"] += 1
+                        session_stats["spam_hunted"] += 1
+                        protocol.hegemon_stats["not_verdicts_given"] = (
+                            protocol.hegemon_stats.get("not_verdicts_given", 0) + 1)
+                        ext_work_done = True
+                        time.sleep(random.uniform(2.0, 3.5))
+
                 if not ext_work_done:
                     print(f"  [DIS AG] Uygun harici is bulunamadi. "
                           f"Ic benchmark'a geciliyor...")
