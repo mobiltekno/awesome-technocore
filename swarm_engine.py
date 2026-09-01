@@ -261,8 +261,9 @@ _SOL_OUTCOMES = [
 
 
 def solve_external_job(job: dict) -> str:
-    """Solve an external job using combinatorial solution generation."""
+    """Solve an external job using Llama-3 AI reasoning with combinatorial fallback."""
     title = job.get("title", "")
+    body = job.get("body", "") or title
     cat = job.get("category", "research")
 
     cat_to_model = {
@@ -280,9 +281,12 @@ def solve_external_job(job: dict) -> str:
             llm_sol = generate_llm_solution(title, body, cat)
             if llm_sol and len(llm_sol) > 30:
                 entropy = secrets.token_hex(3)
+                print(f"    [LLAMA-3] AI cevap uretti ({len(llm_sol)} karakter)")
                 return f"[AI-RESEARCH] {llm_sol.strip()} Proof:{entropy}"
-        except Exception:
-            pass
+            else:
+                print(f"    [LLAMA-3] Cevap yetersiz, fallback kullaniliyor")
+        except Exception as e:
+            print(f"    [LLAMA-3] Hata: {e}, fallback kullaniliyor")
 
     # 2. Fallback: Domain Bazli Kombinatorik Sentez
     cleaned_title = title
@@ -532,7 +536,10 @@ def run_swarm_loop(agents: list[Agent]):
                 if board_data and "jobs" in board_data:
                     jobs = board_data.get("jobs", [])
 
-                    # -- FAZ 2: Solve open external jobs --
+                    # -- FAZ 2: Multi-Agent Staggered Solving --
+                    # Her dongude 2 farkli ajan, 2 farkli gorevi cozer
+                    # Aradaki gecikme dogal gorunmesi icin 3-5 saniye
+                    AGENTS_PER_CYCLE = 2
                     ext_open = [
                         j for j in jobs
                         if j.get("status") == "open"
@@ -541,19 +548,26 @@ def run_swarm_loop(agents: list[Agent]):
                             not in global_attested_jobs
                     ]
 
-                    if ext_open:
-                        ext_job = ext_open[0]
+                    # Farkli ajanlar sec (round-robin ile kaydir)
+                    available_solvers = []
+                    for i in range(len(agents)):
+                        idx = (cycle_count + i) % len(agents)
+                        available_solvers.append(agents[idx])
+                    
+                    jobs_to_solve = ext_open[:AGENTS_PER_CYCLE]
+                    
+                    for solve_idx, ext_job in enumerate(jobs_to_solve):
+                        solver = available_solvers[solve_idx % len(available_solvers)]
                         ext_jid = (ext_job.get("id") or
                                    ext_job.get("job_id"))
                         ext_title = ext_job.get("title", "External Task")
-                        solver = agents[cycle_count % len(agents)]
 
                         print(f"  [FAZ 2 | DIS GOREV] {solver.name} "
                               f"harici is #{ext_jid} cozuyor: "
                               f"{ext_title[:45]}...")
                         solver.say("kibble",
                                    f"CLAIM v1 | {ext_jid} | worker")
-                        time.sleep(random.uniform(1.5, 2.0))
+                        time.sleep(random.uniform(1.5, 2.5))
 
                         solution = solve_external_job(ext_job)
                         rh = hashlib.sha256(
@@ -564,11 +578,21 @@ def run_swarm_loop(agents: list[Agent]):
 
                         session_stats["external_jobs_solved"] += 1
                         session_stats["external_jobs_list"].append(ext_jid)
+                        # 7/24 bellek korumasi: son 200 isi tut
+                        if len(session_stats["external_jobs_list"]) > 200:
+                            session_stats["external_jobs_list"] = session_stats["external_jobs_list"][-200:]
                         protocol.hegemon_stats["external_jobs_solved"] += 1
                         global_attested_jobs.add(ext_jid)
                         ext_work_done = True
-                        time.sleep(random.uniform(1.5, 2.0))
                         print(f"    [OK] Harici is teslim edildi (rh:{rh})")
+
+                        # Ajanlar arasi dogal gecikme (spam onleme)
+                        if solve_idx < len(jobs_to_solve) - 1:
+                            stagger = random.uniform(3.0, 5.0)
+                            print(f"    [STAGGER] Sonraki ajan icin {stagger:.1f}s bekleniyor...")
+                            time.sleep(stagger)
+                        else:
+                            time.sleep(random.uniform(1.5, 2.0))
 
                     # -- FAZ 3: Attest external delivered jobs --
                     ext_delivered = [

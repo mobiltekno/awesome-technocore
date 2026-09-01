@@ -14,7 +14,7 @@ import urllib.request
 
 OLLAMA_URL = "http://127.0.0.1:11434"
 DEFAULT_MODEL = "llama3.2:1b"
-TIMEOUT_SEC = 10
+TIMEOUT_SEC = 25
 
 
 def is_ollama_ready(model: str = DEFAULT_MODEL) -> bool:
@@ -35,6 +35,7 @@ def query_ollama(prompt: str, system: str = "", model: str = DEFAULT_MODEL, max_
         "model": model,
         "prompt": prompt,
         "stream": False,
+        "keep_alive": "30m",
         "options": {
             "num_predict": max_tokens,
             "temperature": 0.7,
@@ -63,18 +64,16 @@ def query_ollama(prompt: str, system: str = "", model: str = DEFAULT_MODEL, max_
 def generate_llm_solution(title: str, body: str, category: str) -> str | None:
     """Llama-3 kullanarak iş için özgün, derin ve teknik bir teslimat (DELIVER) üretir."""
     system = (
-        "You are an elite autonomous AI research agent in the Technocore FLOP Network. "
-        "Provide a concise, highly technical, and empirical solution for the task. "
-        "Include specific calculations, algorithms, or protocol telemetry. "
-        "Keep your response strictly between 40 and 80 words. Do not use conversational filler."
+        "You are a knowledgeable AI assistant. Answer the question directly and factually. "
+        "Be specific and provide concrete details. Keep your answer between 40 and 100 words. "
+        "Do not add disclaimers or meta-commentary."
     )
     prompt = (
-        f"Category: {category}\n"
-        f"Task Title: {title}\n"
-        f"Task Specification: {body}\n\n"
-        f"Deliver the technical solution now:"
+        f"Question: {title}\n"
+        f"Context: {body[:300]}\n\n"
+        f"Answer:"
     )
-    return query_ollama(prompt, system=system, max_tokens=120)
+    return query_ollama(prompt, system=system, max_tokens=150)
 
 
 REFUSAL_MARKERS = [
