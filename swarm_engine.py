@@ -641,10 +641,10 @@ def run_swarm_loop(agents: list[Agent]):
                 if board_data and "jobs" in board_data:
                     jobs = board_data.get("jobs", [])
 
-                    # -- FAZ 2: Multi-Agent Staggered Solving --
-                    # Her dongude 2 farkli ajan, 2 farkli gorevi cozer
-                    # Aradaki gecikme dogal gorunmesi icin 3-5 saniye
-                    AGENTS_PER_CYCLE = 2
+                    # -- FAZ 2: Multi-Agent Turbo Solving (TOP 5 HIZLANDIRICI) --
+                    # Her dongude 3 farkli ajan, 3 farkli gorevi cozer
+                    # Aradaki gecikme dogal gorunmesi icin 2.5-4.0 saniye
+                    AGENTS_PER_CYCLE = 3
                     ext_open = [
                         j for j in jobs
                         if j.get("status") == "open"
@@ -709,7 +709,7 @@ def run_swarm_loop(agents: list[Agent]):
                     ]
 
                     if ext_delivered:
-                        for ext_job in ext_delivered[:2]:
+                        for ext_job in ext_delivered[:3]:
                             ext_jid = (ext_job.get("id") or
                                        ext_job.get("job_id"))
                             target_did = (ext_job.get("worker_did") or
@@ -1101,7 +1101,7 @@ def run_swarm_loop(agents: list[Agent]):
             save_hegemon_state(protocol, session_stats)
             pair_tracker.save_state()
 
-            wait_s = random.uniform(8.0, 14.0)
+            wait_s = random.uniform(4.0, 7.5)
             quorum_stats = quorum_voter.get_stats()
             print(
                 f"  [KONSENSUS] Ic: {ratios['internal_pct']:.0f}% | "
