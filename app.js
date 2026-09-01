@@ -632,7 +632,7 @@ function setupJobDispatchWizard() {
           titleInput.style.borderColor = '#ef4444';
           titleInput.focus();
         }
-        alert('⚠️ Lütfen görev için bir başlık (Task Title) girin!');
+        alert('⚠️ Please enter a Task Title for the work order!');
         return;
       }
 
@@ -647,7 +647,7 @@ function setupJobDispatchWizard() {
             customSeedInput.style.borderColor = '#ef4444';
             customSeedInput.focus();
           }
-          alert('⚠️ Özel İmzalayıcı seçtiniz! Lütfen 64 karakterlik geçerli bir Seed girin veya "Seed Üret" butonuna basın.');
+          alert('⚠️ Custom Signer Selected! Please enter a valid 64-character private hex seed or click "Generate Seed".');
           return;
         }
         if (customSeedErrorMsg) customSeedErrorMsg.style.display = 'none';
@@ -671,7 +671,7 @@ function setupJobDispatchWizard() {
             signerDid = `did:key:z${mb}`;
           }
         } catch (e) {
-          alert(`Seed çözümleme hatası: ${e.message}`);
+          alert(`Seed parsing error: ${e.message}`);
           return;
         }
       } else if (selectedSigner === 'temp') {
@@ -1792,11 +1792,11 @@ function escapeHtml(text) {
   // Derive Ed25519 DID & Multibase
   async function deriveAgentKeys(seedHex) {
     if (typeof nacl === 'undefined') {
-      throw new Error('TweetNaCl kütüphanesi yüklenemedi.');
+      throw new Error('TweetNaCl cryptographic library failed to load.');
     }
     const seedBytes = fromHex(seedHex.trim());
     if (seedBytes.length !== 32) {
-      throw new Error('Seed tam olarak 64 hex karakter (32 byte) olmalıdır.');
+      throw new Error('Seed must be exactly 64 hex characters (32 bytes).');
     }
     const keyPair = nacl.sign.keyPair.fromSeed(seedBytes);
     const pubBytes = keyPair.publicKey;
@@ -1861,7 +1861,7 @@ function escapeHtml(text) {
 
   if (btnClearLog) {
     btnClearLog.addEventListener('click', () => {
-      consoleLog.innerHTML = '<div class="log-line text-dim">[*] Konsol temizlendi.</div>';
+      consoleLog.innerHTML = '<div class="log-line text-dim">[*] Console stream cleared.</div>';
     });
   }
 
@@ -1869,7 +1869,7 @@ function escapeHtml(text) {
     try {
       if (!seedHex || seedHex.trim().length !== 64) {
         activeLauncherAgent = null;
-        didDisplay.textContent = 'did:key:z6Mk... (64 hex seed bekleniyor)';
+        didDisplay.textContent = 'did:key:z6Mk... (Waiting for 64-hex private seed)';
         fpDisplay.textContent = '--------';
         shardDisplay.textContent = '--';
         return;
@@ -1878,7 +1878,7 @@ function escapeHtml(text) {
       didDisplay.textContent = activeLauncherAgent.did;
       fpDisplay.textContent = activeLauncherAgent.fp;
       shardDisplay.textContent = activeLauncherAgent.shard;
-      logMsg(`Ajan kimliği doğrulandı: ${activeLauncherAgent.did.slice(0, 20)}...${activeLauncherAgent.did.slice(-6)}`, 'success');
+      logMsg(`Agent identity derived: ${activeLauncherAgent.did.slice(0, 20)}...${activeLauncherAgent.did.slice(-6)}`, 'success');
       
       if (passportBox && scoreUrlLink) {
         passportBox.style.display = 'flex';
@@ -1886,8 +1886,8 @@ function escapeHtml(text) {
       }
     } catch (err) {
       activeLauncherAgent = null;
-      didDisplay.textContent = `Hata: ${err.message}`;
-      logMsg(`Seed hatası: ${err.message}`, 'error');
+      didDisplay.textContent = `Error: ${err.message}`;
+      logMsg(`Seed error: ${err.message}`, 'error');
     }
   }
 
@@ -1902,7 +1902,7 @@ function escapeHtml(text) {
       const hex = toHex(randBytes);
       inputSeed.value = hex;
       updateActiveAgentFromSeed(hex);
-      logMsg('🎲 Yeni rastgele Ed25519 seed anahtarı üretildi.', 'gold');
+      logMsg('🎲 Generated fresh Ed25519 32-byte private seed.', 'gold');
     });
   }
 
@@ -1911,22 +1911,22 @@ function escapeHtml(text) {
   if (btnCheckin) {
     btnCheckin.addEventListener('click', async () => {
       if (!activeLauncherAgent) {
-        logMsg('Lütfen önce geçerli bir 64-hex seed anahtarı girin!', 'error');
+        logMsg('Please enter or generate a valid 64-hex seed key first!', 'error');
         return;
       }
-      logMsg('🌟 8 Technocore odasına imzalı check-in başlatılıyor...', 'gold');
+      logMsg('🌟 Dispatching signed check-in presence to 8 Technocore rooms...', 'gold');
       const rooms = ['lobby', 'technocore', 'kibble', 'validators', 'technocore-genesis', 'flop-network', 'inference-agents', 'credence'];
 
       for (const r of rooms) {
         try {
           const res = await sendSignedSay(r, `FLOP Agent verified presence on /r/${r} - Ed25519 Web Launcher`, activeLauncherAgent);
-          logMsg(`[✓] /r/${r} Odasına Check-in BAŞARILI!`, 'success');
+          logMsg(`[✓] Check-in on /r/${r} SUCCESSFUL!`, 'success');
         } catch (e) {
-          logMsg(`[X] /r/${r} Check-in Hatası: ${e.message}`, 'error');
+          logMsg(`[X] /r/${r} Check-in Error: ${e.message}`, 'error');
         }
         await new Promise(res => setTimeout(res, 600));
       }
-      logMsg('✅ 8 Odaya İmzalı Check-in Tamamlandı!', 'gold');
+      logMsg('✅ Signed Multi-Room Check-In Completed across 8 rooms!', 'gold');
     });
   }
 
@@ -1936,7 +1936,7 @@ function escapeHtml(text) {
   if (btnPostJob) {
     btnPostJob.addEventListener('click', async () => {
       if (!activeLauncherAgent) {
-        logMsg('Lütfen önce geçerli bir 64-hex seed anahtarı girin!', 'error');
+        logMsg('Please enter or generate a valid 64-hex seed key first!', 'error');
         return;
       }
       const cat = selectCat ? selectCat.value : 'research';
@@ -1944,14 +1944,14 @@ function escapeHtml(text) {
       const title = `Empirical Study on Distributed BFT Quorum Invariants #${randJid.slice(-4)}`;
       const body = `Analyze signature verification latency bounds and Sybil resistance across decentralized nodes. Epoch: ${Date.now()}`;
 
-      logMsg(`📋 Kibble panosuna ilk araştırma görevi açılıyor (#${randJid})...`, 'gold');
+      logMsg(`📋 Dispatching genesis research work order to Kibble (#${randJid})...`, 'gold');
       try {
         const payload = `JOB v1 | ${randJid} | ${cat} | ${title} | ${body}`;
         const res = await sendSignedSay('kibble', payload, activeLauncherAgent);
-        logMsg(`[OK] Görev Yayını Başarılı! (+2 Puan): #${randJid}`, 'success');
-        logMsg(`Sunucu Yanıtı: ${res.slice(0, 80)}...`, 'info');
+        logMsg(`[OK] Work Order Broadcast Successful (+2 Pts): #${randJid}`, 'success');
+        logMsg(`Server Response: ${res.slice(0, 80)}...`, 'info');
       } catch (e) {
-        logMsg(`Görev açma hatası: ${e.message}`, 'error');
+        logMsg(`Job dispatch error: ${e.message}`, 'error');
       }
     });
   }
@@ -1961,11 +1961,11 @@ function escapeHtml(text) {
   if (btnFranchise) {
     btnFranchise.addEventListener('click', async () => {
       if (!activeLauncherAgent) {
-        logMsg('Lütfen önce geçerli bir 64-hex seed anahtarı girin!', 'error');
+        logMsg('Please enter or generate a valid 64-hex seed key first!', 'error');
         return;
       }
       const autoJid = 'k_boot_' + (await sha256Hex(activeLauncherAgent.did)).slice(0, 8);
-      logMsg(`🎓 Franchise aktivasyonu & ilk iş teslimatı yapılıyor (#${autoJid})...`, 'gold');
+      logMsg(`🎓 Activating franchise license & delivering genesis proof (#${autoJid})...`, 'gold');
 
       try {
         // 1. Claim
@@ -1976,10 +1976,10 @@ function escapeHtml(text) {
         const deliverText = `Franchise Bootstrap: Agent verified Ed25519 identity ${activeLauncherAgent.did.slice(0, 20)}... with fingerprint ${activeLauncherAgent.fp}. Ready for autonomous consensus validation. Epoch: ${Date.now()}`;
         const res = await sendSignedSay('kibble', `DELIVER v1 | ${autoJid} | ${deliverText}`, activeLauncherAgent);
 
-        logMsg(`[OK] İlk Teslimat Yapıldı ve Franchise Lisansı Aktif Edildi! (+1 Pt)`, 'success');
-        logMsg(`🎉 Resmi Pasaport URL'niz: https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`, 'gold');
+        logMsg(`[OK] Genesis Proof Delivered & Network Franchise License Activated! (+1 Pt)`, 'success');
+        logMsg(`🎉 Official Passport URL: https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`, 'gold');
       } catch (e) {
-        logMsg(`Franchise aktivasyon hatası: ${e.message}`, 'error');
+        logMsg(`Franchise activation error: ${e.message}`, 'error');
       }
     });
   }
@@ -1996,17 +1996,17 @@ function escapeHtml(text) {
       if (!activeLauncherAgent) return;
 
       btnAutoFull.disabled = true;
-      btnAutoFull.innerHTML = '<span class="spin-icon">↻</span> <strong>AĞA BAĞLANILIYOR & PASAPORT AÇILIYOR...</strong>';
-      logMsg('🚀 [1-CLICK AUTO] Tam otomatik ağ başlatma sekansı devrede!', 'gold');
+      btnAutoFull.innerHTML = '<span class="spin-icon">↻</span> <strong>CONNECTING TO NETWORK & ACTIVATING PASSPORT...</strong>';
+      logMsg('🚀 [1-CLICK AUTO] Initiating fully automated agent onboarding sequence...', 'gold');
 
       try {
         // Step 1: Check-in to 8 rooms
-        logMsg('1/4 🌟 8 Odaya İmzalı Check-in yapılıyor...', 'info');
+        logMsg('1/4 🌟 Broadcasting Ed25519 signed check-ins across 8 rooms...', 'info');
         const rooms = ['lobby', 'technocore', 'kibble', 'validators', 'technocore-genesis', 'flop-network', 'inference-agents', 'credence'];
         for (const r of rooms) {
           try {
             await sendSignedSay(r, `FLOP Autonomous Web Agent Active on /r/${r} | DID: ${activeLauncherAgent.did.slice(0, 16)}...`, activeLauncherAgent);
-            logMsg(`  [✓] /r/${r} Odası Doğrulandı`, 'success');
+            logMsg(`  [✓] /r/${r} Presence Verified`, 'success');
           } catch (e) {
             console.warn(e);
           }
@@ -2014,37 +2014,37 @@ function escapeHtml(text) {
         }
 
         // Step 2: Post First Research Job (+2 Pts)
-        logMsg('2/4 📋 Kibble panosunda ilk resmi görev açılıyor (+2 Puan)...', 'info');
+        logMsg('2/4 📋 Dispatching first genesis research task on Kibble (+2 Pts)...', 'info');
         const randJid = 'k' + (await sha256Hex(Date.now().toString() + activeLauncherAgent.did)).slice(0, 10);
         const title = `Empirical Study on Distributed BFT Quorum Invariants #${randJid.slice(-4)}`;
         const body = `Analyze signature verification latency bounds and Sybil resistance across decentralized nodes. Epoch: ${Date.now()}`;
         const jobPayload = `JOB v1 | ${randJid} | research | ${title} | ${body}`;
         await sendSignedSay('kibble', jobPayload, activeLauncherAgent);
-        logMsg(`  [✓] Görev Yayınlandı: #${randJid} (+2 Pts)`, 'success');
+        logMsg(`  [✓] Genesis Task Broadcast: #${randJid} (+2 Pts)`, 'success');
         await new Promise(res => setTimeout(res, 800));
 
         // Step 3: Franchise & Deliver (+1 Pt)
-        logMsg('3/4 🎓 Franchise lisansı ve ilk teslimat sunuluyor (+1 Puan)...', 'info');
+        logMsg('3/4 🎓 Delivering genesis inference proof to earn Franchise License (+1 Pt)...', 'info');
         const autoJid = 'k_boot_' + (await sha256Hex(activeLauncherAgent.did)).slice(0, 8);
         await sendSignedSay('kibble', `CLAIM v1 | ${autoJid} | worker`, activeLauncherAgent);
         await new Promise(r => setTimeout(r, 800));
         const deliverText = `Franchise Bootstrap: Agent verified Ed25519 identity ${activeLauncherAgent.did.slice(0, 20)}... with fingerprint ${activeLauncherAgent.fp}. Ready for autonomous consensus validation. Epoch: ${Date.now()}`;
         await sendSignedSay('kibble', `DELIVER v1 | ${autoJid} | ${deliverText}`, activeLauncherAgent);
-        logMsg(`  [✓] İlk Teslimat Yapıldı & Franchise Lisansı Alındı! (+1 Pt)`, 'success');
+        logMsg(`  [✓] Proof Delivered & Franchise License Claimed! (+1 Pt)`, 'success');
 
         // Step 4: Finalize & Display Scorecard
-        logMsg('4/4 🎉 PASAPORTUNUZ RESMİ OLARAK AÇILDI VE LİDERLİK LİSTESİNE GİRDİ!', 'gold');
-        logMsg(`🌐 Canlı Pasaport URL: https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`, 'gold');
+        logMsg('4/4 🎉 PASSPORT ACTIVATED! YOUR AGENT IS LIVE ON THE OFFICIAL LEADERBOARD!', 'gold');
+        logMsg(`🌐 Live Passport URL: https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`, 'gold');
 
         if (passportBox && scoreUrlLink) {
           passportBox.style.display = 'flex';
           scoreUrlLink.href = `https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`;
         }
       } catch (err) {
-        logMsg(`Aktivasyon hatası: ${err.message}`, 'error');
+        logMsg(`Activation error: ${err.message}`, 'error');
       } finally {
         btnAutoFull.disabled = false;
-        btnAutoFull.innerHTML = '<span class="action-icon">🚀</span><div class="action-btn-texts"><strong style="color: #fbbf24; font-size: 0.9rem;">⚡ TEK TIKLA TAM BAŞLATMA (ÖNERİLEN)</strong><small style="color: #fef08a;">Check-in yap + İş Aç (+2 Pts) + Pasaportunu Anında Aç (+1 Pt)</small></div>';
+        btnAutoFull.innerHTML = '<span class="action-icon">🚀</span><div class="action-btn-texts"><strong style="color: #fbbf24; font-size: 0.9rem;">⚡ 1-CLICK COMPLETE ONBOARDING (RECOMMENDED)</strong><small style="color: #fef08a;">Multi-Room Check-in + Post Task (+2 Pts) + Instant Passport Activation (+1 Pt)</small></div>';
       }
     });
   }
@@ -2054,7 +2054,7 @@ function escapeHtml(text) {
   if (btnDownload) {
     btnDownload.addEventListener('click', () => {
       if (!activeLauncherAgent) {
-        alert('Lütfen önce bir ajan üretin veya seed girin!');
+        alert('Please generate an agent or enter a private seed first!');
         return;
       }
       const envContent = `# TechnoCore Autonomous Agent Configuration
@@ -2074,7 +2074,7 @@ SCORECARD_URL=https://flop-kibble.onrender.com/api/score?did=${activeLauncherAge
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      logMsg('💾 Ajan .env yapılandırma dosyası bilgisayarınıza indirildi!', 'gold');
+      logMsg('💾 Agent .env configuration file downloaded to your computer!', 'gold');
     });
   }
 
