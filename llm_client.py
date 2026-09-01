@@ -13,32 +13,50 @@ import urllib.error
 import urllib.request
 
 OLLAMA_URL = "http://127.0.0.1:11434"
-DEFAULT_MODEL = "llama3.2:1b"
-TIMEOUT_SEC = 25
+PRIMARY_MODEL = "llama3.2:3b"
+FALLBACK_MODEL = "llama3.2:1b"
+TIMEOUT_SEC = 30
 
 
-def is_ollama_ready(model: str = DEFAULT_MODEL) -> bool:
-    """Ollama servisinin ve istenen modelin hazır olup olmadığını kontrol eder."""
+def get_available_models() -> list[str]:
+    """Ollama'da yuklu olan modellerin listesini doner."""
     try:
         req = urllib.request.Request(f"{OLLAMA_URL}/api/tags", headers={"User-Agent": "TechnocoreLLM/1.0"})
         with urllib.request.urlopen(req, timeout=2) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            models = [m.get("name", "") for m in data.get("models", [])]
-            return any(model in m for m in models)
+            return [m.get("name", "") for m in data.get("models", [])]
     except Exception:
-        return False
+        return []
 
 
-def query_ollama(prompt: str, system: str = "", model: str = DEFAULT_MODEL, max_tokens: int = 150) -> str | None:
-    """Ollama API'sine istek atar. Gecikme veya hata olursa None döner (fallback güvenliği)."""
+def get_best_model() -> str:
+    """En guclu hazir modeli secer (3B varsa 3B, yoksa 1B)."""
+    models = get_available_models()
+    if any(PRIMARY_MODEL in m for m in models):
+        return PRIMARY_MODEL
+    if any(FALLBACK_MODEL in m for m in models):
+        return FALLBACK_MODEL
+    return PRIMARY_MODEL
+
+
+def is_ollama_ready(model: str | None = None) -> bool:
+    """Ollama servisinin ve modellerden en az birinin hazir olup olmadigini kontrol eder."""
+    target = model or get_best_model()
+    models = get_available_models()
+    return any(target in m for m in models) or any(FALLBACK_MODEL in m for m in models)
+
+
+def query_ollama(prompt: str, system: str = "", model: str | None = None, max_tokens: int = 160) -> str | None:
+    """Ollama API'sine istek atar. Gecikme veya hata olursa None doner (fallback guvenligi)."""
+    selected_model = model or get_best_model()
     payload = {
-        "model": model,
+        "model": selected_model,
         "prompt": prompt,
         "stream": False,
         "keep_alive": "30m",
         "options": {
             "num_predict": max_tokens,
-            "temperature": 0.7,
+            "temperature": 0.6,
             "top_p": 0.9,
         }
     }
@@ -56,24 +74,43 @@ def query_ollama(prompt: str, system: str = "", model: str = DEFAULT_MODEL, max_
         with urllib.request.urlopen(req, timeout=TIMEOUT_SEC) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             resp_text = data.get("response", "").strip()
-            return resp_text if len(resp_text) > 10 else None
+            return resp_text if len(resp_text) > 15 else None
     except Exception:
+        # Eger Primary Model hata verdiyse ve model 3B ise, 1B ile aninda ikinci sans dene
+        if selected_model == PRIMARY_MODEL:
+            try:
+                payload["model"] = FALLBACK_MODEL
+                body = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(
+                    f"{OLLAMA_URL}/api/generate",
+                    data=body,
+                    headers={"Content-Type": "application/json", "User-Agent": "TechnocoreLLM/1.0"},
+                    method="POST"
+                )
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    resp_text = data.get("response", "").strip()
+                    return resp_text if len(resp_text) > 15 else None
+            except Exception:
+                pass
         return None
 
 
 def generate_llm_solution(title: str, body: str, category: str) -> str | None:
-    """Llama-3 kullanarak iş için özgün, derin ve teknik bir teslimat (DELIVER) üretir."""
+    """Llama-3 (3B veya 1B) kullanarak is icin derin, teknik ve hatasiz bir teslimat (DELIVER) uretir."""
     system = (
-        "You are a knowledgeable AI assistant. Answer the question directly and factually. "
-        "Be specific and provide concrete details. Keep your answer between 40 and 100 words. "
-        "Do not add disclaimers or meta-commentary."
+        "You are an expert autonomous AI validator and research engineer. "
+        "Answer the question or deliver the solution factually, precisely and concisely. "
+        "Provide direct technical explanations, protocol specifics, formulas or architecture details. "
+        "Keep your response strictly between 45 and 95 words. Never use conversational filler, meta-talk or disclaimers."
     )
     prompt = (
-        f"Question: {title}\n"
-        f"Context: {body[:300]}\n\n"
-        f"Answer:"
+        f"Domain Category: {category}\n"
+        f"Task Question/Title: {title}\n"
+        f"Context/Specifications: {body[:350]}\n\n"
+        f"Technical Solution:"
     )
-    return query_ollama(prompt, system=system, max_tokens=150)
+    return query_ollama(prompt, system=system, max_tokens=160)
 
 
 REFUSAL_MARKERS = [
