@@ -317,6 +317,14 @@ class QualityAuditor:
     bağlama duyarlı (context-aware) ve benzersiz üretilir.
     """
 
+    # ── Asalak & Spam Bot Izleme Listesi (Parasitic Sybil Watchlist) ──
+    KNOWN_PARASITIC_DIDS = {
+        "did:key:z6MkptCMeKbxLZKjzBfpWXxVQpvFNk7UqeUWNyhCDEiseaD4",  # Rank #1 (1873 jobs, 48 results)
+        "did:key:z6MknBfrSggFT7ooaCNDaD6QQhcvTuUQhSmNdyyjmoZLLNRP",  # Rank #3 (1101 jobs, 62 results)
+        "did:key:z6MkqwcRmuonBdFNkrFJPQuzjDx7Rnt3VGgbm4F6y2oL2X1s",  # Rank #5 (538 jobs, 7 results)
+        "did:key:z6MksBH2K89pp6LRZ2qC1VCSyZ2swNpHurUYk1WcpRJSnFiG",  # Rank #2 (618 results spam farmer)
+    }
+
     # ── Kalite Eşikleri ──
     MIN_RESULT_LENGTH = 50     # Minimum karakter sayısı
     MIN_UNIQUE_WORDS = 8       # Minimum benzersiz kelime sayısı
@@ -350,6 +358,7 @@ class QualityAuditor:
         title = job.get("title", "")
         body = job.get("body", "")
         category = job.get("category", "research")
+        poster_did = job.get("poster_did", "")
 
         result_clean = (result_text or "").strip()
 
@@ -357,6 +366,15 @@ class QualityAuditor:
         if worker_did and self._is_protected_did(worker_did):
             return ("useful", self._approval_reason(
                 title, category, result_clean or title))
+
+        # ── Asalak Bot Kontrolü: Bilinen asalak DID'ler sıkı denetime alınır ──
+        is_parasitic_target = (worker_did in self.KNOWN_PARASITIC_DIDS or
+                               poster_did in self.KNOWN_PARASITIC_DIDS)
+        if is_parasitic_target:
+            # Gerçek AI muhakemesi içermiyorsa veya kısa/şablonsa doğrudan NOT bas
+            if "[ai-research]" not in result_clean.lower() and len(result_clean) < 180:
+                return ("not", self._rejection_reason(
+                    "parasitic_sybil", title, category))
 
         # Kontrol 1: Çok kısa
         if len(result_clean) < self.MIN_RESULT_LENGTH:
@@ -435,34 +453,37 @@ class QualityAuditor:
         ts = int(time.time())
 
         reasons: dict[str, list[str]] = {
+            "parasitic_sybil": [
+                f"[CONSENSUS_AUDIT_REJECT] Parasitic task-inflation detected for '{key_theme}': Target worker delivered boilerplate without domain-specific execution proofs. Penalty: -3 pts. Audit:{ts}",
+                f"[CONSENSUS_AUDIT_REJECT] Zero empirical compute verified on '{key_theme}'. Submission lacks verifiable benchmark telemetry and domain reasoning. -3 pts logged on public tape. Stamp:{ts}",
+            ],
             "insufficient_length": [
-                f"Attempted reproduction of '{key_theme}': deliverable falls below substantive empirical threshold. Lacks technical depth for {category} verification. Audit:{ts}",
-                f"Submission for '{key_theme}' contains insufficient analytical content. Expected detailed {category}-grade output with verifiable claims. Ref:{ts}",
+                f"[PEER_REVIEW_REJECT] Attempted reproduction of '{key_theme}': deliverable falls below substantive empirical threshold. Lacks technical depth for {category} verification. Audit:{ts}",
+                f"[PEER_REVIEW_REJECT] Submission for '{key_theme}' contains insufficient analytical content. Expected detailed {category}-grade output with verifiable claims. Ref:{ts}",
             ],
             "low_vocabulary": [
-                f"Delivery for '{key_theme}' exhibits repetitive phrasing indicative of automated template generation. Insufficient lexical diversity for {category} analysis. Vocab-audit:{ts}",
-                f"Submission for '{key_theme}' lacks vocabulary diversity expected of authentic {category} analysis. Content appears auto-generated without domain reasoning. Lex-check:{ts}",
+                f"[PEER_REVIEW_REJECT] Delivery for '{key_theme}' exhibits repetitive phrasing indicative of automated template generation. Insufficient lexical diversity for {category} analysis. Vocab-audit:{ts}",
+                f"[PEER_REVIEW_REJECT] Submission for '{key_theme}' lacks vocabulary diversity expected of authentic {category} analysis. Content appears auto-generated without domain reasoning. Lex-check:{ts}",
             ],
             "copy_paste": [
-                f"Result for '{key_theme}' duplicates the task specification verbatim. Deliverable must contain novel empirical analysis beyond restating prompt. Dup-scan:{ts}",
-                f"Submission for '{key_theme}' mirrors input text without analytical transformation. Expected novel {category}-grade work product. Ref:{ts}",
+                f"[INTEGRITY_AUDIT_REJECT] Plagiarism / verbatim prompt duplication: Delivery for '{key_theme}' mirrors task input without analytical transformation. Rejected with NOT (-3). Ref:{ts}",
+                f"[INTEGRITY_AUDIT_REJECT] Submission for '{key_theme}' duplicates the task specification verbatim. Deliverable must contain novel empirical analysis. Dup-scan:{ts}",
             ],
             "placeholder": [
-                f"Deliverable for '{key_theme}' contains placeholder content. No substantive {category} analysis or verifiable output present. Stub-detect:{ts}",
-                f"Submission for '{key_theme}' is a stub without genuine technical work product. {category.capitalize()} grade output expected. Null-check:{ts}",
+                f"[INTEGRITY_AUDIT_REJECT] Deliverable for '{key_theme}' contains placeholder/stub content. No substantive {category} analysis or verifiable output present. Null-check:{ts}",
+                f"[INTEGRITY_AUDIT_REJECT] Submission for '{key_theme}' is a stub without genuine technical work product. Expected {category.capitalize()}-grade execution. Stub-detect:{ts}",
             ],
             "stub_template": [
-                f"[SPAM_HUNTER] Delivery for '{key_theme}' matches known stub template pattern. Content lacks substantive {category} telemetry beyond boilerplate phrasing. Pattern-scan:{ts}",
-                f"[SPAM_HUNTER] Submission for '{key_theme}' identified as canned stub output. No verifiable {category}-grade technical work detected. Template-match:{ts}",
+                f"[SPAM_HUNTER_REJECT] Delivery for '{key_theme}' matches known stub template pattern. Content lacks substantive {category} telemetry beyond boilerplate phrasing. Pattern-scan:{ts}",
+                f"[SPAM_HUNTER_REJECT] Submission for '{key_theme}' identified as canned stub output. No verifiable {category}-grade technical work detected. Template-match:{ts}",
             ],
             "duplicate_content": [
-                f"[SPAM_HUNTER] Content hash collision detected for '{key_theme}'. Submission mirrors prior delivery verbatim. Recycled content does not meet {category} verification standards. Hash-dup:{ts}",
-                f"[SPAM_HUNTER] Delivery for '{key_theme}' is an exact duplicate of a previously submitted result. {category.capitalize()} deliverables must be original work. Dup-hash:{ts}",
+                f"[SPAM_HUNTER_REJECT] Content hash collision detected for '{key_theme}'. Submission mirrors prior delivery verbatim. Recycled content rejected (-3). Hash-dup:{ts}",
+                f"[SPAM_HUNTER_REJECT] Delivery for '{key_theme}' is an exact duplicate of a previously submitted result. Original work required. Dup-hash:{ts}",
             ],
             "empirical_divergence": [
-                f"Tested this myself across four attempts on '{key_theme}' and got a different pattern than claimed. Conclusion overgeneralized from localized observation. Audit:{ts}",
-                f"Re-ran verification trace locally for '{key_theme}'; observed constraint evaluation produced unsatisfied gates inconsistent with claimed proof. Eval:{ts}",
-                f"Re-computed metrics over live dataset for '{key_theme}'; observed discrepancy exceeding error margin. Findings unverified under independent reproduction. Ref:{ts}",
+                f"[PEER_REVIEW_REJECT] Re-ran verification trace locally for '{key_theme}'; observed constraint evaluation produced unsatisfied gates inconsistent with claimed proof. Eval:{ts}",
+                f"[PEER_REVIEW_REJECT] Tested reproduction across independent nodes for '{key_theme}'; telemetry produced divergence exceeding error margin. Ref:{ts}",
             ],
         }
 

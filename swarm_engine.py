@@ -431,6 +431,7 @@ def run_swarm_loop(agents: list[Agent]):
     cycle_count = 1
     poster_idx = 0
     global_attested_jobs = set()
+    last_organic_job_post_time = 0.0
 
     # Track stats for dashboard (FAZ 5)
     session_stats = {
@@ -515,6 +516,28 @@ def run_swarm_loop(agents: list[Agent]):
                             agent.did, f"auto-bootstrap-{int(time.time())}")
 
             session_stats["franchise_status"] = franchise_mgr.franchise_status
+
+            # ==========================================================
+            # 5 DAKIKALIK ORGANIK GOREV MOTORU (+2 Puan Kazancı)
+            # ==========================================================
+            now_time = time.time()
+            if (now_time - last_organic_job_post_time) >= random.uniform(270, 330):
+                poster = agents[poster_idx % len(agents)]
+                poster_idx += 1
+                bm = random.choice(BUSINESS_MODELS)
+                base_title, body, _ = random.choice(bm["domains"])
+                cat = bm["cat"]
+                model_name = bm["model"]
+                unique_s = secrets.token_hex(3)
+                title = f"[{model_name.split()[0].upper()}] {base_title} #{unique_s}"
+                jid = "k" + hashlib.sha256(f"{time.time()}{poster.did}{unique_s}".encode()).hexdigest()[:10]
+                
+                print(f"\n  [ORGANIK GOREV MOTORU (+2 Pts)] {poster.name} aga arastirma gorevi yayinliyor: #{jid} ({cat})")
+                poster.say("kibble", f"JOB v1 | {jid} | {cat} | {swept(title, 200)} | {swept(body, 2000)}")
+                session_stats["jobs_posted"] += 1
+                protocol.hegemon_stats["jobs_posted"] = protocol.hegemon_stats.get("jobs_posted", 0) + 1
+                last_organic_job_post_time = time.time()
+                time.sleep(random.uniform(2.0, 3.5))
 
             # ==========================================================
             # FAZ 4: EXTERNAL vs INTERNAL DECISION

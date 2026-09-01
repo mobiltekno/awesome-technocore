@@ -44,9 +44,9 @@ ROOMS = [
     "credence",
 ]
 
-# Ban korumasi ve 2 saatlik periyot guvenlik ayarlari
+# Ban korumasi ve 5 dakikalik organik periyot guvenlik ayarlari
 MAX_WRITES_PER_MIN = 20  # Cok guvenli istek limiti
-JOB_POST_INTERVAL_SEC = 1800  # Tam 2 saatte bir (120 dakika) yeni is ac
+JOB_POST_INTERVAL_SEC = 300  # 5 dakikada bir (organik) yeni arastirma isi ac
 DAEMON_POLL_INTERVAL_SEC = 10  # Is panosunu 60 saniyede bir sakin sekilde kontrol et
 
 
