@@ -455,6 +455,11 @@ def process_credence_room(agents: list[Agent], cycle_count: int):
                         worker.say("credence", f"SUBMIT v1 | {tid} | {clean_proof}")
                         print(f"    [OK] /r/credence teslimati gonderildi (SUBMIT #{tid})")
                         credence_processed_tasks.add(tid)
+                        # 7/24 bellek korumasi: max 500 kayit tut
+                        if len(credence_processed_tasks) > 500:
+                            to_remove = list(credence_processed_tasks)[:250]
+                            for old in to_remove:
+                                credence_processed_tasks.discard(old)
                         time.sleep(random.uniform(2.0, 3.0))
             
             # 2. SUBMIT v1 tespit et ve VOUCH (Hakemlik) yap
@@ -475,7 +480,7 @@ def process_credence_room(agents: list[Agent], cycle_count: int):
                         time.sleep(random.uniform(2.0, 3.0))
                         
     except Exception as e:
-        pass
+        print(f"  [CREDENCE UYARI] /r/credence isle hata: {e}")
 
 
 # =====================================================================
