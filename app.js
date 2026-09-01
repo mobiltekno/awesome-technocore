@@ -2081,7 +2081,7 @@ SCORECARD_URL=https://flop-kibble.onrender.com/api/score?did=${activeLauncherAge
   // Modal Open/Close Controls
   if (btnOpen && modal) {
     btnOpen.addEventListener('click', () => {
-      modal.style.display = 'flex';
+      modal.classList.add('open');
       // If seed input is empty, generate one automatically for instant ease of use
       if (inputSeed && !inputSeed.value) {
         const randBytes = new Uint8Array(32);
@@ -2094,7 +2094,7 @@ SCORECARD_URL=https://flop-kibble.onrender.com/api/score?did=${activeLauncherAge
   }
 
   function closeModal() {
-    if (modal) modal.style.display = 'none';
+    if (modal) modal.classList.remove('open');
   }
 
   if (btnClose) btnClose.addEventListener('click', closeModal);
