@@ -1002,8 +1002,6 @@ function renderLeaderboard(passports) {
     `;
     tbody.appendChild(tr);
   });
-    tbody.appendChild(tr);
-  });
 
   // Also update the top metrics from leaderboard data
   updateMetricsFromPassports(passports);
