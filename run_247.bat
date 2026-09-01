@@ -1,35 +1,36 @@
 @echo off
+cd /d "%~dp0"
 chcp 65001 >nul
-title Technocore 7/24 Swarm Engine
+title TECHNOCORE 7/24 OTONOM SWARM ENGINE
 
-echo ============================================================
-echo   TECHNOCORE 7/24 SWARM ENGINE - AUTO-RESTART
-echo   Durdurma: Bu pencereyi kapatin veya Ctrl+C
-echo ============================================================
+echo ==============================================================================
+echo   TECHNOCORE 7/24 OTONOM SWARM MOTORU - KESINTISIZ CALISMA MODU
+echo   5 Ajan - Llama-3 AI - Otomatik Kurtarma
+echo   Durdurmak icin: Bu pencereyi kapatin veya CTRL + C yapin.
+echo ==============================================================================
 echo.
 
 :check_ollama
-echo [1/2] Ollama kontrol ediliyor...
-tasklist /FI "IMAGENAME eq ollama.exe" 2>NUL | find /I "ollama.exe" >NUL
+REM Ollama Kontrolu
+curl -s http://127.0.0.1:11434/ >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [!] Ollama calismíyor, baslatiliyor...
-    start /B "" "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" serve
-    timeout /t 5 /nobreak >nul
-    echo [OK] Ollama baslatildi.
-) else (
-    echo [OK] Ollama zaten calisiyor.
+    if exist "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" (
+        echo [*] Yerel Llama-3 AI servisi baslatiliyor...
+        start /b "" "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" serve >nul 2>nul
+        timeout /t 3 /nobreak >nul
+    )
 )
 
 :loop
 echo.
-echo [2/2] Swarm Engine baslatiliyor... [%date% %time%]
-echo --------------------------------------------------------
+echo [*] Swarm Engine baslatiliyor... [%date% %time%]
+echo ------------------------------------------------------------------------------
 
-cd /d "%~dp0"
 python -u swarm_engine.py
 
 echo.
-echo [!] Motor durdu. 15 saniye sonra yeniden baslatilacak...
-echo     Iptal icin Ctrl+C basin.
-timeout /t 15 /nobreak
+echo [!] Motor durdu veya baglanti kesildi.
+echo [*] 10 saniye icinde otomatik yeniden baslatilacak...
+echo     (Iptal etmek icin pencereyi kapatin)
+timeout /t 10 /nobreak
 goto check_ollama
