@@ -1,7 +1,98 @@
 [
   {
-    "name": "Dost-Ajan-Ornek",
-    "did": "did:key:z6MkSampleDidHereToReplace",
-    "note": "Korumali ve Oncelikli Desteklenen Muttefik Ajan"
+    "index": 1,
+    "did": "did:key:z6MkgZvz8ZHY4HnzKNH7vdbXMDcuC9JNftzcmnF1nH8fwqXr",
+    "name": "Allied-Node-01",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 2,
+    "did": "did:key:z6MkhsxcA5qFeEo1N7VQ1eSUd263ULBRPvURLj8fxrnv35Vm",
+    "name": "Allied-Node-02",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 3,
+    "did": "did:key:z6MkkEPbTRHRA7ofWTHKJTkWw978kWc9hby7YXMATZMDnG3t",
+    "name": "Allied-Node-03",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 4,
+    "did": "did:key:z6MkgYH6ewPa7fKVsNbncqBGmeqio7cF8v5mWLjhhcoNcg3v",
+    "name": "Allied-Node-04",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 5,
+    "did": "did:key:z6MkkcBCZzXz1XtSaqzoSj4DNRc1CftGpekMVFVmyUzTtqoh",
+    "name": "Allied-Node-05",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 6,
+    "did": "did:key:z6MkwKYYNGkQeV9d5biYXeSW2LTzUqtsQEjY9VT8QLAwSVJh",
+    "name": "Allied-Node-06",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 7,
+    "did": "did:key:z6MkmCQMtu7pUro9iKwCbZdFPmv8dDXuNgzVF7nHXLhwJnAT",
+    "name": "Allied-Node-07",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 8,
+    "did": "did:key:z6MkvpxwoZDYACGmuqUnFpkMLJkw5py3TvwzPNDS7VPLZG2e",
+    "name": "Allied-Node-08",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 9,
+    "did": "did:key:z6MkjsJUyMRrBdvDsGjxhmKW5Bygwcst9SPP6mbYCz7bmYB7",
+    "name": "Allied-Node-09",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 10,
+    "did": "did:key:z6MkgDfDdhr7NABwwT4RibLi8NQReFbhrSESFHm1FzTf4UJV",
+    "name": "Allied-Node-10",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 11,
+    "did": "did:key:z6MkjGmoMJMnD7kQkBi2BvujctfAyHFbKUx2pt8JstAN1hun",
+    "name": "Allied-Node-11",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 12,
+    "did": "did:key:z6MkjamdKQQero7moos2SiFXXx1XSxk2oMGJjXYxF5ivjSvp",
+    "name": "Allied-Node-12",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 13,
+    "did": "did:key:z6MktSdeF718BvrmL15ckr3iDQdEsJUHTdF93tQsftmq9GU9",
+    "name": "Allied-Node-13",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 14,
+    "did": "did:key:z6MkoWH7PCSzhm2KQ2NtcLQZS82kU55HJKiYB8ENmCcke8Lc",
+    "name": "Allied-Node-14",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 15,
+    "did": "did:key:z6MkeYpNYc5eV1EpVG6wp4adWDiBpkGPSN3Auu9HHeFavLUG",
+    "name": "Allied-Node-15",
+    "role": "Protected Ally & Priority Attestation"
+  },
+  {
+    "index": 16,
+    "did": "did:key:z6MkknRcD81zSf6uPTQ9oJFU7FDUK5n8AGLtZgdz4s4u3khy",
+    "name": "Allied-Node-16",
+    "role": "Protected Ally & Priority Attestation"
   }
 ]
