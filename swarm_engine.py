@@ -817,7 +817,6 @@ def run_swarm_loop(agents: list[Agent]):
 
                     # -- FAZ 3.5: AKTIF ASALAK AVCISI --
                     # Asalak DID'lerin acip/teslim ettigi isleri hedefli NOT'la
-                    from consensus_guard import QualityAuditor
                     parasitic_dids = QualityAuditor.KNOWN_PARASITIC_DIDS
                     parasitic_delivered = [
                         j for j in jobs

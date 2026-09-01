@@ -53,7 +53,13 @@ if "%choice%"=="5" goto check_score
 if "%choice%"=="6" goto quit
 goto menu
 
-:check_ollama_silent
+:start_engine
+cls
+echo.
+echo  ======================================================================
+echo   TECHNOCORE 7/24 OTONOM SWARM MOTORU BASLATILIYOR
+echo  ======================================================================
+echo.
 curl -s http://127.0.0.1:11434/ >nul 2>nul
 if %errorlevel% neq 0 (
     if exist "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" (
@@ -62,21 +68,11 @@ if %errorlevel% neq 0 (
         timeout /t 4 /nobreak >nul
         echo   [OK] Ollama baslatildi.
     ) else (
-        echo   [!] Ollama bulunamadi! Llama-3 AI calismayacak (fallback aktif).
+        echo   [!] Ollama bulunamadi! (Fallback calisacak)
     )
 ) else (
-    echo   [OK] Ollama AI zaten calisiyor.
+    echo   [OK] Ollama AI servisi aktif.
 )
-goto :eof
-
-:start_engine
-cls
-echo.
-echo  ======================================================================
-echo   TECHNOCORE 7/24 OTONOM SWARM MOTORU BASLATILIYOR
-echo  ======================================================================
-echo.
-call :check_ollama_silent
 echo.
 
 :run_loop
@@ -93,7 +89,14 @@ echo  [*] 10 saniye icinde otomatik yeniden baslatilacak...
 echo      (Ana menuye donmek icin CTRL+C yapin)
 echo.
 timeout /t 10 /nobreak
-call :check_ollama_silent
+
+curl -s http://127.0.0.1:11434/ >nul 2>nul
+if %errorlevel% neq 0 (
+    if exist "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" (
+        start /b "" "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" serve >nul 2>nul
+        timeout /t 3 /nobreak >nul
+    )
+)
 goto run_loop
 
 :restart_engine
@@ -107,7 +110,13 @@ echo  [1/3] Mevcut Python islemleri durduruluyor...
 taskkill /f /im python.exe >nul 2>nul
 timeout /t 2 /nobreak >nul
 echo  [2/3] Ollama AI kontrol ediliyor...
-call :check_ollama_silent
+curl -s http://127.0.0.1:11434/ >nul 2>nul
+if %errorlevel% neq 0 (
+    if exist "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" (
+        start /b "" "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" serve >nul 2>nul
+        timeout /t 3 /nobreak >nul
+    )
+)
 echo  [3/3] Swarm Engine temiz baslatma...
 echo.
 goto run_loop
