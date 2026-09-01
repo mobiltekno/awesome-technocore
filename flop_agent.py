@@ -20,6 +20,12 @@ import urllib.request
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+try:
+    from consensus_guard import QualityAuditor
+    _quality_auditor = QualityAuditor()
+except ImportError:
+    _quality_auditor = None
+
 BASE = "https://technocore.chat"
 KIBBLE = "https://flop-kibble.onrender.com"
 MULTICODEC_ED25519 = b"\xed\x01"
@@ -35,6 +41,7 @@ ROOMS = [
     "flop-network",
     "gpu-miners",
     "inference-agents",
+    "credence",
 ]
 
 # Ban korumasi ve 2 saatlik periyot guvenlik ayarlari
@@ -117,6 +124,7 @@ class Agent:
         self.skey = self.fp[2:]
         self.attested_jobs_cache = set()
         self.claimed_jobs_cache = set()
+        self.franchise_earned = False  # FAZ 1: Franchise tracking
 
     def nonce(self) -> str:
         return str(int(time.time() * 1000))
@@ -216,10 +224,16 @@ class Agent:
         clean_sum = swept(summary, 3000)
         return self.say("kibble", f"DELIVER v1 | {job_id} | {clean_sum}")
 
-    def kibble_attest(self, job_id: str, useful: bool, reason: str) -> str:
+    def kibble_attest(self, job_id: str, useful: bool, reason: str,
+                      result_hash: str = "") -> str:
         verdict = "useful" if useful else "not"
         clean_re = swept(reason, 2000)
-        return self.say("kibble", f"ATTEST v1 | {job_id} | {verdict} | {clean_re}")
+        if result_hash:
+            return self.say("kibble",
+                f"ATTEST v1 | {job_id} | {verdict} | rh:{result_hash} | {clean_re}")
+        else:
+            return self.say("kibble",
+                f"ATTEST v1 | {job_id} | {verdict} | {clean_re}")
 
     def kibble_post_job(self, category: str, title: str, body: str) -> str:
         jid = "k" + hashlib.sha256(f"{time.time()}{self.did}".encode()).hexdigest()[:10]
@@ -287,13 +301,27 @@ class Agent:
             worker = j.get("worker_did", "")
             if jid and poster != self.did and worker != self.did:
                 res_txt = j.get("result", "")
-                if len(res_txt) > 10:
+                # Quality audit with QualityAuditor (FAZ 3)
+                if _quality_auditor and res_txt:
+                    verdict, reason = _quality_auditor.audit_delivery(j, res_txt)
+                    is_useful = (verdict == "useful")
+                    rh = hashlib.sha256(res_txt.encode('utf-8')).hexdigest()[:16]
+                    if is_useful:
+                        print(f"  [Kalite Denetim] Is #{jid}: USEFUL")
+                    else:
+                        print(f"  [Kalite Denetim] Is #{jid}: NOT - {reason[:60]}")
+                    self.kibble_attest(jid, is_useful, reason, rh)
+                elif len(res_txt) > 10:
+                    rh = hashlib.sha256(res_txt.encode('utf-8')).hexdigest()[:16]
                     print(f"  [Guvenli Attest] Is #{jid} denetlenip onaylaniyor...")
-                    self.kibble_attest(jid, True, "Comprehensive and verifiable result matching task constraints.")
-                    stats_gain["attested"] += 1
-                    time.sleep(random.uniform(2.5, 4.5))
-                    if stats_gain["attested"] >= 2:
-                        break
+                    self.kibble_attest(jid, True,
+                        "Comprehensive and verifiable result matching task constraints.", rh)
+                else:
+                    continue
+                stats_gain["attested"] += 1
+                time.sleep(random.uniform(2.5, 4.5))
+                if stats_gain["attested"] >= 2:
+                    break
 
         # 2. Acik is varsa yakala ve teslim et
         opens = [j for j in jobs if j.get("status") == "open"]

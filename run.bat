@@ -24,7 +24,17 @@ if %errorlevel% neq 0 (
     pip install cryptography
 )
 
-echo [*] Swarm Engine (5 Otonom Is Modeli) Calistiriliyor...
+REM 3. Ollama Yerel AI Servis Kontrolu
+curl -s http://127.0.0.1:11434/ >nul 2>nul
+if %errorlevel% neq 0 (
+    if exist "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" (
+        echo [*] Yerel Llama-3 AI Motoru baslatiliyor...
+        start /b "" "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" serve >nul 2>nul
+        timeout /t 2 /nobreak >nul
+    )
+)
+
+echo [*] Swarm Engine (Llama-3 Destekli 5 Otonom Is Modeli) Calistiriliyor...
 echo [*] Durdurmak icin istediginiz zaman CTRL + C basabilirsiniz.
 echo.
 

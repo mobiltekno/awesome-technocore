@@ -1727,6 +1727,65 @@ body {
   transition: width 0.8s ease;
 }
 
+.text-cyan { color: var(--cyan-primary); }
+.text-gold { color: var(--gold-accent); }
+.text-green { color: var(--green-status); }
+.text-amber { color: #f59e0b; }
+
+/* Consensus Phase Metrics (FAZ 1-5) */
+.consensus-metrics-row {
+  margin-top: -0.2rem;
+  margin-bottom: 0.8rem;
+}
+
+.metric-consensus {
+  border-color: rgba(0, 243, 255, 0.12);
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.03), rgba(0, 0, 0, 0.45));
+}
+.metric-consensus:hover {
+  border-color: rgba(0, 243, 255, 0.3);
+}
+
+/* Consensus Ratio Bar */
+.consensus-ratio-bar {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.9rem;
+}
+
+.ratio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.ratio-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+.ratio-values {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.ratio-values span {
+  color: var(--green-status);
+  font-weight: 800;
+}
+
+.ratio-values #hgInternalRatio {
+  color: var(--gold-accent);
+}
+
 /* Alpha Council Fleet */
 .council-section {
   border-top: 1px solid rgba(255, 255, 255, 0.06);

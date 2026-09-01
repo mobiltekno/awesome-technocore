@@ -194,6 +194,13 @@ class AlphaProtocol:
             "nft_minted": 0,
             "network_dominance_pct": 0.0,
             "quorum_overrides": 0,
+            # ── FAZ 1-5 Consensus Metrics ──
+            "not_verdicts_given": 0,          # FAZ 3: Red karari sayisi
+            "external_jobs_solved": 0,         # FAZ 2: Cozulen dis ag isleri
+            "external_solutions_list": [],     # FAZ 2: Cozulen islerin ID listesi
+            "third_party_validations": 0,      # FAZ 3: Dogrulanan 3.parti proje
+            "pair_cap_blocks": 0,              # FAZ 4: Pair cap atlanan onaylar
+            "franchise_agents": 0,             # FAZ 1: Franchise kazanmis ajan
         }
 
     # ── Authority Classification ──────────────────────────────────

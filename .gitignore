@@ -8,3 +8,5 @@ __pycache__/
 MASTER_PROJECT_MEMORY.md
 hegemon_state.json
 mint_queue.json
+pair_state.json
+franchise_state.json

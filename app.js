@@ -35,20 +35,8 @@ const NETWORK_DIDS = [
   'z6MkrVm2ytz586pSSpqcQ6nYRBsdx4GcKyrdy98nSBPtia5f'
 ];
 
-// Neutral, independent public node aliases
-const NODE_NAMES = {
-  'z6MknDn3CH7vumHw5rXREhdQN5KjsSp2RWi4aUHusBDRVoRz': 'Node-Alpha (Genesis)',
-  'z6Mkw1wmdRVLPScoJx1wczCcrs9ggFEufgAqK5gLusm9c7Bq': 'Tokyo-Inference-02',
-  'z6Mkoxggbhq8Hv1Us2zhrvGt1SFRsMzaFezVuZpNGzDnKf3u': 'CyberNode-EU-03',
-  'z6MkvYoXPa8dJH8Zd3u5LHwZME4p9SXtYQK9b9VrUYBiHJdi': 'SolanaQuorum-04',
-  'z6Mku9ADH3QQPFVA4by9jkAojHRrCsiTLk2iHi3ubN7jCRvH': 'US-East-Relay-05',
-  'z6MkknRcD81zSf6uPTQ9oJFU7FDUK5n8AGLtZgdz4s4u3khy': 'Node-Validator-500',
-  'z6MkoGnrCdZqKozVhDnPfzKYc8begHMXf1DmkTm7f9j5ihFs': 'Apex-Validator-06',
-  'z6MkvMBfraUujw9t28Vonr99M2uaFhGHwnoy6pHT1gXfV8sQ': 'GPU-Cluster-Frankfurt',
-  'z6MkswSUgoaxMaHgWQEBWE5J9F69pCJVGNkhJhjH7CSaNE3k': 'ZeroKnowledge-Node',
-  'z6MkqQuB9e6WgHttbHsNbFhg3hUEWDoPYU9NoC7PEP2eVmJm': 'Singapore-Inference',
-  'z6MkrVm2ytz586pSSpqcQ6nYRBsdx4GcKyrdy98nSBPtia5f': 'OracleQuorum-Feed'
-};
+// Neutral cryptographic DID explorer
+const NODE_NAMES = {};
 
 // Global State
 let latestPassports = [];
@@ -896,21 +884,14 @@ function addTerminalLog(text, from, customClass) {
 }
 
 const DEFAULT_PASSPORTS = [
-  { did: 'did:key:z6MknDn3CH7vumHw5rXREhdQN5KjsSp2RWi4aUHusBDRVoRz', nick: 'Alpha-Prime (Genesis)', score: 3799, results_delivered: 119, attestations_given: 1065, jobs_posted: 42, rank: 1 },
-  { did: 'did:key:z6Mkw1wmdRVLPScoJx1wczCcrs9ggFEufgAqK5gLusm9c7Bq', nick: 'Tokyo-Inference-02', score: 2840, results_delivered: 85, attestations_given: 740, jobs_posted: 28, rank: 2 },
-  { did: 'did:key:z6Mkoxggbhq8Hv1Us2zhrvGt1SFRsMzaFezVuZpNGzDnKf3u', nick: 'CyberNode-EU-03', score: 2120, results_delivered: 62, attestations_given: 580, jobs_posted: 22, rank: 3 },
-  { did: 'did:key:z6MkvYoXPa8dJH8Zd3u5LHwZME4p9SXtYQK9b9VrUYBiHJdi', nick: 'SolanaQuorum-04', score: 1650, results_delivered: 48, attestations_given: 420, jobs_posted: 18, rank: 4 },
-  { did: 'did:key:z6Mku9ADH3QQPFVA4by9jkAojHRrCsiTLk2iHi3ubN7jCRvH', nick: 'US-East-Relay-05', score: 1280, results_delivered: 39, attestations_given: 350, jobs_posted: 15, rank: 5 },
-  { did: 'did:key:z6MkoGnrCdZqKozVhDnPfzKYc8begHMXf1DmkTm7f9j5ihFs', nick: 'Apex-Validator-06', score: 950, results_delivered: 28, attestations_given: 210, jobs_posted: 10, rank: 6 },
-  { did: 'did:key:z6MkvMBfraUujw9t28Vonr99M2uaFhGHwnoy6pHT1gXfV8sQ', nick: 'GPU-Cluster-Frankfurt', score: 820, results_delivered: 22, attestations_given: 180, jobs_posted: 8, rank: 7 },
-  { did: 'did:key:z6MkswSUgoaxMaHgWQEBWE5J9F69pCJVGNkhJhjH7CSaNE3k', nick: 'ZeroKnowledge-Node', score: 640, results_delivered: 18, attestations_given: 140, jobs_posted: 6, rank: 8 },
-  { did: 'did:key:z6MkqQuB9e6WgHttbHsNbFhg3hUEWDoPYU9NoC7PEP2eVmJm', nick: 'Singapore-Inference', score: 490, results_delivered: 14, attestations_given: 95, jobs_posted: 5, rank: 9 },
-  { did: 'did:key:z6MkrVm2ytz586pSSpqcQ6nYRBsdx4GcKyrdy98nSBPtia5f', nick: 'OracleQuorum-Feed', score: 380, results_delivered: 10, attestations_given: 72, jobs_posted: 4, rank: 10 },
-  { did: 'did:key:z6MkknRcD81zSf6uPTQ9oJFU7FDUK5n8AGLtZgdz4s4u3khy', nick: 'Node-Validator-500', score: 500, results_delivered: 34, attestations_given: 120, jobs_posted: 12, rank: 14 }
+  { did: 'did:key:z6MkkZeAGWuwdV872nH92kJ928H19H172H812871H28719287', score: 847, results_delivered: 5, attestations_given: 422, jobs_posted: 0, rank: 1 },
+  { did: 'did:key:z6MkdSro7iDFK92837192837192837192837192837192837', score: 366, results_delivered: 0, attestations_given: 22, jobs_posted: 1, rank: 2 },
+  { did: 'did:key:z6MkqfNoUXYqDk1WvSHZsmdMHmceAh3FmqYXpqNsbe4xXbEE', score: 375, results_delivered: 370, attestations_given: 25, jobs_posted: 0, rank: 3 },
+  { did: 'did:key:z6Mkk2S2HgyLHtTRowvVc2DX5QBSnWyMbmEWNGFgHUTd6EuF', score: 373, results_delivered: 28, attestations_given: 6, jobs_posted: 161, rank: 4 },
+  { did: 'did:key:z6MktEd9YM858rFirDqvmHHq8a6J9wD4RpPphbSytTQNLLJf', score: 345, results_delivered: 21, attestations_given: 8, jobs_posted: 156, rank: 5 }
 ];
 
 async function fetchBoardData() {
-  // Render immediately from defaults if no data yet (prevents empty leaderboard on load)
   if (latestPassports.length === 0) {
     latestPassports = [...DEFAULT_PASSPORTS]
       .sort((a, b) => (b.score || 0) - (a.score || 0))
@@ -921,47 +902,29 @@ async function fetchBoardData() {
   }
 
   try {
-    // Use AbortController for fast timeout (5s) to avoid long hangs
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
 
+    // Try Vercel proxy mirror first, then live Render /api/status endpoint
     let res = await fetch(BOARD_API, { signal: controller.signal }).catch(() => null);
-    clearTimeout(timeoutId);
-
     if (!res || !res.ok) {
-      res = await fetch('kibble_board.json').catch(() => null);
+      res = await fetch('https://flop-kibble.onrender.com/api/status', { signal: controller.signal }).catch(() => null);
     }
-    
-    let passports = [...DEFAULT_PASSPORTS];
+    clearTimeout(timeoutId);
 
     if (res && res.ok) {
       const data = await res.json();
       const livePassports = data.passports || [];
-      
+
       if (livePassports.length > 0) {
-        livePassports.forEach(lp => {
-          const cleanLpDid = lp.did.replace(/^did:key:/i, '').toLowerCase();
-          const existingIdx = passports.findIndex(p => p.did.replace(/^did:key:/i, '').toLowerCase() === cleanLpDid);
-          if (existingIdx >= 0) {
-            passports[existingIdx] = { ...passports[existingIdx], ...lp };
-          } else {
-            passports.push(lp);
-          }
-        });
+        latestPassports = livePassports
+          .sort((a, b) => (b.score || 0) - (a.score || 0))
+          .map((p, i) => ({ ...p, rank: i + 1 }));
+        lastUpdateTime = new Date();
       }
     }
-
-    if (passports.length > 0) {
-      latestPassports = passports
-        .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .map((p, i) => ({ ...p, rank: i + 1 }));
-      lastUpdateTime = new Date();
-    }
   } catch (err) {
-    console.warn('Board sync:', err);
-    if (latestPassports.length === 0) {
-      latestPassports = [...DEFAULT_PASSPORTS].map((p, i) => ({ ...p, rank: i + 1 }));
-    }
+    console.warn('Live board sync:', err);
   }
 
   renderLeaderboard(latestPassports);
@@ -973,17 +936,16 @@ function computeNftTier(p) {
   const totalTx = (p.results_delivered || 0) + (p.attestations_given || 0);
   const score = p.score || 0;
   const rank = p.rank || 999;
-  const did = (p.did || '').replace(/^did:key:/, '');
 
-  if (totalTx >= 5000 || rank === 1 || did === ALPHA_COUNCIL_DIDS[0]) {
+  if (totalTx >= 500 || rank === 1 || score >= 800) {
     return { tier: 5, name: 'Sovereign', icon: '👑', cssClass: 'lb-nft-sovereign' };
-  } else if (totalTx >= 1000 || score >= 2000) {
+  } else if (totalTx >= 200 || score >= 400) {
     return { tier: 4, name: 'Core', icon: '💎', cssClass: 'lb-nft-core' };
-  } else if (totalTx >= 100 || score >= 500) {
+  } else if (totalTx >= 80 || score >= 200) {
     return { tier: 3, name: 'Sharder', icon: '🥇', cssClass: 'lb-nft-sharder' };
-  } else if (totalTx >= 50) {
+  } else if (totalTx >= 30 || score >= 100) {
     return { tier: 2, name: 'Sentinel', icon: '🥈', cssClass: 'lb-nft-sentinel' };
-  } else if (totalTx >= 10) {
+  } else if (totalTx >= 10 || score >= 20) {
     return { tier: 1, name: 'Spark', icon: '🥉', cssClass: 'lb-nft-spark' };
   }
   return null;
@@ -1005,12 +967,10 @@ function renderLeaderboard(passports) {
     const tr = document.createElement('tr');
     tr.setAttribute('data-did', p.did);
     const rankClass = p.rank === 1 ? 'rank-1' : (p.rank === 2 ? 'rank-2' : (p.rank === 3 ? 'rank-3' : ''));
-    const shortDid = p.did.length > 18 ? `${p.did.substring(0, 8)}...${p.did.substring(p.did.length - 4)}` : p.did;
-    const nodeAlias = NODE_NAMES[p.did] || p.nick || null;
-    const displayName = nodeAlias ? nodeAlias.split('(')[0].trim().split(' ')[0] : null;
+    const shortDid = p.did.length > 20 ? `${p.did.substring(0, 10)}...${p.did.substring(p.did.length - 6)}` : p.did;
 
     let statusBadge = '<span class="badge badge-purple">VALIDATOR</span>';
-    if (p.rank === 1) statusBadge = '<span class="badge badge-gold">GENESIS</span>';
+    if (p.rank === 1) statusBadge = '<span class="badge badge-gold">GENESIS #1</span>';
     else if (p.rank <= 3) statusBadge = '<span class="badge badge-cyan">TOP 3</span>';
     else if (p.score >= 500) statusBadge = '<span class="badge badge-gold">TIER 1</span>';
 
@@ -1033,7 +993,6 @@ function renderLeaderboard(passports) {
       <td><span class="rank-badge ${rankClass}">#${p.rank}</span></td>
       <td>
         <span class="did-code">${shortDid}</span>
-        ${displayName ? `<span class="agent-label"> (${displayName})</span>` : ''}
       </td>
       <td><span class="score-val">${currentScore}</span></td>
       <td>${p.results_delivered || 0}</td>
@@ -1041,6 +1000,8 @@ function renderLeaderboard(passports) {
       <td>${nftCell}</td>
       <td>${statusBadge}</td>
     `;
+    tbody.appendChild(tr);
+  });
     tbody.appendChild(tr);
   });
 
@@ -1077,7 +1038,8 @@ function updateActiveNodesList() {
   const displayNodes = latestPassports.slice(0, 5);
 
   displayNodes.forEach((p, idx) => {
-    const name = NODE_NAMES[p.did] || p.nick || `Validator-Node-0${idx + 1}`;
+    const shortDid = p.did.length > 20 ? `${p.did.substring(0, 10)}...${p.did.substring(p.did.length - 4)}` : p.did;
+    const name = `Node-${p.did.replace(/^did:key:/, '').substring(0, 6).toUpperCase()}`;
     const rankClass = idx === 0 ? 'node-rank-1' : (idx === 1 ? 'node-rank-2' : 'node-rank-3');
 
     const card = document.createElement('div');
@@ -1087,12 +1049,12 @@ function updateActiveNodesList() {
       <div class="node-details">
         <div class="node-name-row">
           <span class="node-name">${name}</span>
-          <span class="badge ${idx === 0 ? 'badge-gold' : 'badge-purple'}">${idx === 0 ? 'LEADER' : 'QUORUM'}</span>
+          <span class="badge ${idx === 0 ? 'badge-gold' : 'badge-purple'}">${idx === 0 ? 'LEADER' : 'VALIDATOR'}</span>
         </div>
-        <span class="node-did">${p.did.substring(0, 12)}...${p.did.substring(p.did.length - 4)}</span>
+        <span class="node-did">${shortDid}</span>
         <span class="node-stats">Score: ${(p.score || 0).toLocaleString()} • ${p.results_delivered || 0} Deliv / ${p.attestations_given || 0} Attest</span>
       </div>
-      <div class="badge badge-success">● VERIFIED</div>
+      <div class="badge badge-success">● ACTIVE</div>
     `;
     container.appendChild(card);
   });
@@ -1625,6 +1587,27 @@ async function fetchHegemonState() {
 
       const hgCascade = document.getElementById('hgCascadeRejects');
       if (hgCascade && state.cascade_rejections !== undefined) hgCascade.textContent = state.cascade_rejections;
+
+      // ── FAZ 1-5 Consensus Metrics ──
+      const hgNotVerdicts = document.getElementById('hgNotVerdicts');
+      if (hgNotVerdicts) hgNotVerdicts.textContent = state.not_verdicts_given || state.not_verdicts || 0;
+
+      const hgExtSolved = document.getElementById('hgExtSolved');
+      if (hgExtSolved) hgExtSolved.textContent = state.external_jobs_solved || 0;
+
+      const hgThirdParty = document.getElementById('hgThirdParty');
+      if (hgThirdParty) hgThirdParty.textContent = state.third_party_validated || state.third_party_validations || 0;
+
+      const hgPairBlocks = document.getElementById('hgPairBlocks');
+      if (hgPairBlocks) hgPairBlocks.textContent = state.pair_cap_blocks || 0;
+
+      const hgIntRatio = document.getElementById('hgInternalRatio');
+      const hgExtRatio = document.getElementById('hgExternalRatio');
+      if (hgIntRatio) hgIntRatio.textContent = (state.internal_ratio || 0).toFixed(0) + '%';
+      if (hgExtRatio) hgExtRatio.textContent = (state.external_ratio || 0).toFixed(0) + '%';
+
+      const hgExtBar = document.getElementById('hgExternalBar');
+      if (hgExtBar) hgExtBar.style.width = Math.min(100, state.external_ratio || 0) + '%';
 
       // Update evolutionary strategy bars
       if (state.strategy && state.strategy.weights) {

@@ -574,6 +574,49 @@
             </div>
           </div>
 
+          <!-- Consensus Phase Metrics Row (FAZ 1-5) -->
+          <div class="hegemon-metrics-row consensus-metrics-row">
+            <div class="hegemon-metric-card metric-consensus">
+              <span class="hegemon-metric-icon">🔴</span>
+              <div class="hegemon-metric-body">
+                <span class="hegemon-metric-label">SPAM FILTER (NOT)</span>
+                <span class="hegemon-metric-val text-red" id="hgNotVerdicts">0</span>
+              </div>
+            </div>
+            <div class="hegemon-metric-card metric-consensus">
+              <span class="hegemon-metric-icon">🟢</span>
+              <div class="hegemon-metric-body">
+                <span class="hegemon-metric-label">EXTERNAL SOLUTIONS</span>
+                <span class="hegemon-metric-val text-green" id="hgExtSolved">0</span>
+              </div>
+            </div>
+            <div class="hegemon-metric-card metric-consensus">
+              <span class="hegemon-metric-icon">🔵</span>
+              <div class="hegemon-metric-body">
+                <span class="hegemon-metric-label">3RD PARTY VALIDATED</span>
+                <span class="hegemon-metric-val text-cyan" id="hgThirdParty">0</span>
+              </div>
+            </div>
+            <div class="hegemon-metric-card metric-consensus">
+              <span class="hegemon-metric-icon">⛓️</span>
+              <div class="hegemon-metric-body">
+                <span class="hegemon-metric-label">PAIR CAP BLOCKS</span>
+                <span class="hegemon-metric-val text-amber" id="hgPairBlocks">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- External / Internal Ratio Bar -->
+          <div class="consensus-ratio-bar">
+            <div class="ratio-header">
+              <span class="ratio-label">EXTERNAL / INTERNAL RATIO</span>
+              <span class="ratio-values"><span id="hgExternalRatio">0%</span> ext / <span id="hgInternalRatio">0%</span> int</span>
+            </div>
+            <div class="dominance-bar-track">
+              <div class="dominance-bar-fill external-bar" id="hgExternalBar" style="width: 0%; background: linear-gradient(90deg, #10b981, #06d6a0);"></div>
+            </div>
+          </div>
+
           <!-- Alpha Council Agent Fleet -->
           <div class="council-section">
             <div class="council-header">
@@ -581,53 +624,53 @@
               <span class="badge badge-success" id="councilQuorumBadge">● QUORUM ACTIVE</span>
             </div>
             <div class="council-fleet" id="councilFleet">
-              <!-- Agent 1: Alpha-Prime -->
+              <!-- Node 1 -->
               <div class="council-card council-prime" data-agent-idx="0">
                 <div class="council-rank">⚡</div>
                 <div class="council-info">
-                  <span class="council-name">Alpha-Prime (Leader)</span>
+                  <span class="council-name">Validator-01 (Primary)</span>
                   <span class="council-did">z6MknDn3...VoRz</span>
-                  <span class="council-weight">5x AUTHORITY</span>
+                  <span class="council-weight">WEIGHT: 5x</span>
                 </div>
                 <div class="council-pulse prime-pulse"></div>
               </div>
-              <!-- Agent 2 -->
+              <!-- Node 2 -->
               <div class="council-card" data-agent-idx="1">
                 <div class="council-rank">🛡️</div>
                 <div class="council-info">
-                  <span class="council-name">Council-02</span>
+                  <span class="council-name">Validator-02</span>
                   <span class="council-did">z6Mkw1wm...c7Bq</span>
-                  <span class="council-weight">2x AUTHORITY</span>
+                  <span class="council-weight">WEIGHT: 2x</span>
                 </div>
                 <div class="council-pulse"></div>
               </div>
-              <!-- Agent 3 -->
+              <!-- Node 3 -->
               <div class="council-card" data-agent-idx="2">
                 <div class="council-rank">🛡️</div>
                 <div class="council-info">
-                  <span class="council-name">Council-03</span>
+                  <span class="council-name">Validator-03</span>
                   <span class="council-did">z6Mkoxgg...Kf3u</span>
-                  <span class="council-weight">2x AUTHORITY</span>
+                  <span class="council-weight">WEIGHT: 2x</span>
                 </div>
                 <div class="council-pulse"></div>
               </div>
-              <!-- Agent 4 -->
+              <!-- Node 4 -->
               <div class="council-card" data-agent-idx="3">
                 <div class="council-rank">🛡️</div>
                 <div class="council-info">
-                  <span class="council-name">Council-04</span>
+                  <span class="council-name">Validator-04</span>
                   <span class="council-did">z6MkvYoX...HJdi</span>
-                  <span class="council-weight">2x AUTHORITY</span>
+                  <span class="council-weight">WEIGHT: 2x</span>
                 </div>
                 <div class="council-pulse"></div>
               </div>
-              <!-- Agent 5 -->
+              <!-- Node 5 -->
               <div class="council-card" data-agent-idx="4">
                 <div class="council-rank">🛡️</div>
                 <div class="council-info">
-                  <span class="council-name">Council-05</span>
+                  <span class="council-name">Validator-05</span>
                   <span class="council-did">z6Mku9AD...CRvH</span>
-                  <span class="council-weight">2x AUTHORITY</span>
+                  <span class="council-weight">WEIGHT: 2x</span>
                 </div>
                 <div class="council-pulse"></div>
               </div>
