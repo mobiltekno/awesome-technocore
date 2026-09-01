@@ -53,6 +53,7 @@ from consensus_guard import (
     QuorumVoter,
     MAX_SCORED_USEFUL_PAIR,
     QUORUM_SIZE,
+    get_allied_dids,
 )
 
 try:
@@ -653,6 +654,11 @@ def run_swarm_loop(agents: list[Agent]):
                             not in global_attested_jobs
                     ]
 
+                    # Müttefik (Allied) ajanların işlerine öncelik ver
+                    allied_dids_set = get_allied_dids()
+                    if allied_dids_set:
+                        ext_open.sort(key=lambda j: (0 if j.get("poster_did") in allied_dids_set else 1))
+
                     # Farkli ajanlar sec (round-robin ile kaydir)
                     available_solvers = []
                     for i in range(len(agents)):
@@ -709,6 +715,9 @@ def run_swarm_loop(agents: list[Agent]):
                     ]
 
                     if ext_delivered:
+                        # Müttefik (Allied) teslimatlara öncelikli useful onayı ver
+                        if allied_dids_set:
+                            ext_delivered.sort(key=lambda j: (0 if (j.get("worker_did") in allied_dids_set or j.get("poster_did") in allied_dids_set) else 1))
                         for ext_job in ext_delivered[:3]:
                             ext_jid = (ext_job.get("id") or
                                        ext_job.get("job_id"))

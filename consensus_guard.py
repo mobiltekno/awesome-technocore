@@ -52,6 +52,26 @@ TRUSTED_DID_PREFIXES = [          # Bilinen güvenilir DID prefix'leri
     "z6Mku9AD",                   # Agent-Node-05
 ]
 
+ALLIED_DIDS_FILE = os.path.join(STATE_DIR, "allied_dids.json")
+
+
+def get_allied_dids() -> set[str]:
+    """allied_dids.json dosyasından dost/müttefik ajan DID'lerini okur."""
+    allies = set()
+    if os.path.exists(ALLIED_DIDS_FILE):
+        try:
+            with open(ALLIED_DIDS_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    for item in data:
+                        if isinstance(item, dict) and "did" in item:
+                            allies.add(item["did"].strip())
+                        elif isinstance(item, str):
+                            allies.add(item.strip())
+        except Exception:
+            pass
+    return allies
+
 # ── Quorum Constants ─────────────────────────────────────────────────
 QUORUM_SIZE = 3                   # Oylama yapacak validator sayısı
 QUORUM_THRESHOLD = 2              # Çoğunluk eşiği (2/3)
@@ -444,9 +464,15 @@ class QualityAuditor:
         }
 
     def _is_protected_did(self, did: str) -> bool:
-        """Host ve güvenilir DID'leri koruma altına alır."""
+        """Host, bizim 5 ajan ve müttefik (allied) DID'leri koruma altına alır."""
         for prefix in TRUSTED_DID_PREFIXES:
             if prefix in did:
+                return True
+        allies = get_allied_dids()
+        if did in allies:
+            return True
+        for ally_did in allies:
+            if ally_did and len(ally_did) > 8 and ally_did in did:
                 return True
         return False
 
