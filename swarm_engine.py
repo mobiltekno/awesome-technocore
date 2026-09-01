@@ -977,18 +977,6 @@ def run_swarm_loop(agents: list[Agent]):
 
                         # Additional random 'not' to break monotony
                         # (~10% chance quorum flips to not)
-                        if (quorum_result["final_verdict"] == "useful"
-                                and random.random() < 0.10):
-                            quorum_result["final_verdict"] = "not"
-                            quorum_result["final_reason"] = (
-                                quality_auditor._rejection_reason(
-                                    random.choice([
-                                        "insufficient_length",
-                                        "low_vocabulary"]),
-                                    title, cat))
-                            quorum_result["vote_summary"] = (
-                                "OVERRIDE->not")
-
                         verdict = quorum_result["final_verdict"]
                         reason = quorum_result["final_reason"]
                         spokesperson = available_vals[
@@ -1042,15 +1030,6 @@ def run_swarm_loop(agents: list[Agent]):
                                 quality_auditor.audit_delivery(
                                     {"title": title, "category": cat,
                                      "body": body}, sol))
-                            if (verdict == "useful" and
-                                    random.random() < 0.15):
-                                verdict = "not"
-                                reason = (
-                                    quality_auditor._rejection_reason(
-                                        random.choice([
-                                            "insufficient_length",
-                                            "low_vocabulary"]),
-                                        title, cat))
 
                             if verdict == "useful":
                                 val.say(

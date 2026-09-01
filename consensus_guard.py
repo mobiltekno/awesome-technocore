@@ -41,10 +41,15 @@ TARGET_EXTERNAL_RATIO = 0.80      # %80 dış ağ çalışması
 TARGET_INTERNAL_RATIO = 0.20      # %20 iç benchmark
 
 # ── Spam Hunter Constants ────────────────────────────────────────────
-# Host DID — Kibble sunucu sahibi, asla NOT basılmaz
+# Host DID & Bizim Ajanlar — Asla birbirimize NOT basılmaz (Dost Atesi Korumasi)
 HOST_DID_PREFIX = "z6MkpbZ3"      # Host DID'in kısa prefix'i
 TRUSTED_DID_PREFIXES = [          # Bilinen güvenilir DID prefix'leri
     "z6MkpbZ3",                   # Kibble host
+    "z6MknDn3",                   # Alpha-Prime (Lider)
+    "z6Mkw1wm",                   # Agent-Node-02
+    "z6Mkoxgg",                   # Agent-Node-03
+    "z6MkvYoX",                   # Agent-Node-04
+    "z6Mku9AD",                   # Agent-Node-05
 ]
 
 # ── Quorum Constants ─────────────────────────────────────────────────
