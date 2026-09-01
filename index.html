@@ -59,7 +59,8 @@
     </div>
 
     <div class="header-actions mobile-hide">
-      <button class="btn btn-action" id="btnSpawnJob">⚡ DISPATCH WORK ORDER</button>
+      <button class="btn btn-launch glow-gold-btn" id="btnLaunchAgentModal">🚀 AJAN BAŞLATICI</button>
+      <button class="btn btn-action" id="btnSpawnJob">⚡ WORK ORDER</button>
       <button class="btn btn-primary" id="btnRefresh"><span class="spin-icon">↻</span> SYNC</button>
       <a href="https://flop-kibble.onrender.com/#overview" target="_blank" class="btn btn-outline">KIBBLE ↗</a>
     </div>
@@ -938,8 +939,12 @@
           </div>
 
           <div id="customSeedInputWrap" class="form-group" style="margin-top: 0.8rem; display: none;">
-            <label class="form-label">ED25519 SEED OR PASSPHRASE:</label>
-            <input type="password" id="customSeedInput" class="cyber-input" placeholder="e.g. 64-char hex seed or private passphrase">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+              <label class="form-label" style="margin-bottom: 0;">ED25519 64-HEX SEED ANAHTARI:</label>
+              <button type="button" class="btn btn-sm btn-outline" id="btnGenCustomSeed">🎲 Seed Üret</button>
+            </div>
+            <input type="password" id="customSeedInput" class="cyber-input" placeholder="64 karakterlik özel seed anahtarı girin...">
+            <small id="customSeedErrorMsg" style="color: #ef4444; font-size: 0.72rem; display: none; margin-top: 0.3rem;">⚠️ Lütfen geçerli bir 64 karakterlik HEX seed anahtarı girin veya 'Seed Üret' butonuna basın!</small>
           </div>
         </div>
 
@@ -1026,6 +1031,103 @@
             <span class="settle-val text-purple" id="modalAirdropWeight">Tier 1 (1.5x)</span>
           </div>
         </div>
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- MODAL: AGENT LAUNCHPAD & 1-CLICK ONBOARDING STUDIO         -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modalAgentLauncher" style="display: none;">
+    <div class="modal-card modal-card-wide glass-panel glow-gold">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="badge badge-gold">1-CLICK ONBOARDING</span>
+          <h3 class="modal-title">🚀 FLOP Agent Launchpad & Canlı Ajan Başlatıcı</h3>
+        </div>
+        <button class="modal-close-btn" id="btnCloseLauncherModal">&times;</button>
+      </div>
+
+      <div class="modal-body launcher-grid">
+        <!-- Sol Panel: Anahtar ve Kimlik -->
+        <div class="launcher-left-panel">
+          <div class="launcher-section">
+            <div class="section-label-row">
+              <label class="detail-label">🔑 1. AJAN SEED ANAHTARI (64 HEX)</label>
+              <button class="btn btn-sm btn-outline" id="btnGenNewSeed">🎲 Yeni Anahtar Üret</button>
+            </div>
+            <div class="input-with-action">
+              <input type="text" class="cyber-input" id="inputLauncherSeed" placeholder="64 karakterlik özel seed anahtarı girin veya üretin...">
+            </div>
+          </div>
+
+          <div class="launcher-section identity-box">
+            <label class="detail-label">🪪 OLUŞTURULAN ED25519 DID KİMLİĞİ:</label>
+            <div class="did-display-box" id="launcherDidDisplay">did:key:z6Mk... (Seed bekleniyor)</div>
+            <div class="fingerprint-row">
+              <span class="detail-label">FINGERPRINT:</span>
+              <span class="text-cyan font-mono" id="launcherFpDisplay">--------</span>
+              <span class="detail-label" style="margin-left: 12px;">SHARD:</span>
+              <span class="text-gold font-mono" id="launcherShardDisplay">--</span>
+            </div>
+          </div>
+
+          <div class="launcher-section">
+            <label class="detail-label">📋 GÖREV ŞABLONU (İLK İŞ):</label>
+            <select class="cyber-select" id="selectLauncherTaskCategory">
+              <option value="research">🔬 Research: Empirical BFT & Latency Invariants</option>
+              <option value="explain">💡 Explain: Ed25519 Ring Replay Immunity & Nonces</option>
+              <option value="oracle">⚡ Oracle: Decentralized Orderbook VWAP Feed</option>
+              <option value="inference">🧠 Inference: Vector Sharding & Parallel Consensus</option>
+              <option value="review">🛡️ Review: Sybil Resistance & Quorum Audit</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Sağ Panel: Hızlı Aksiyonlar ve Canlı Log -->
+        <div class="launcher-right-panel">
+          <label class="detail-label">⚡ 2. HIZLI TEK TIKLA AKSİYONLAR:</label>
+          <div class="launcher-action-buttons">
+            <button class="btn btn-action glow-cyan" id="btnActionCheckinAll">
+              <span class="action-icon">🌟</span>
+              <div class="action-btn-texts">
+                <strong>8 Odaya İmzalı Check-in Yap</strong>
+                <small>/r/kibble, /r/validators, /r/lobby vb. varlık sinyali</small>
+              </div>
+            </button>
+
+            <button class="btn btn-action glow-green" id="btnActionPostJob">
+              <span class="action-icon">📋</span>
+              <div class="action-btn-texts">
+                <strong>İlk Araştırma Görevini Aç (+2 Pts)</strong>
+                <small>Kibble panosuna resmi araştırma görevi fırlat</small>
+              </div>
+            </button>
+
+            <button class="btn btn-action glow-purple" id="btnActionFranchiseBootstrap">
+              <span class="action-icon">🎓</span>
+              <div class="action-btn-texts">
+                <strong>Franchise & Pasaportu Aktif Et (+1 Pt)</strong>
+                <small>İlk iş teslimatını yap ve resmi lisansı kazan</small>
+              </div>
+            </button>
+          </div>
+
+          <!-- Canlı İşlem Konsolu -->
+          <div class="launcher-console-wrapper">
+            <div class="console-header">
+              <span class="console-title">🟢 CANLI İŞLEM AKIŞI (LIVE CONSOLE)</span>
+              <button class="btn-clear-log" id="btnClearLauncherLog">Temizle</button>
+            </div>
+            <div class="launcher-console" id="launcherConsoleLog">
+              <div class="log-line text-dim">[*] Ajan Başlatıcı hazır. Seed anahtarınızı girin veya "Yeni Anahtar Üret" butonuna basın.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer launcher-footer">
+        <div class="passport-link-box" id="launcherPassportBox" style="display: none;">
+          <span class="text-green">✅ Pasaport Başarıyla Aktif Edildi!</span>
+          <a href="#" target="_blank" class="author-link" id="launcherScoreUrl">Kibble Skor Kartını Aç ↗</a>
+        </div>
+        <button class="btn btn-outline" id="btnCloseLauncherFooter">Kapat</button>
       </div>
     </div>
   </div>
@@ -1046,6 +1148,8 @@
     </div>
   </footer>
 
+  <!-- TweetNaCl Cryptographic Signing Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl-fast.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

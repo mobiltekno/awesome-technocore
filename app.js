@@ -603,21 +603,97 @@ function setupJobDispatchWizard() {
     });
   });
 
+  const btnGenCustom = document.getElementById('btnGenCustomSeed');
+  const customSeedInput = document.getElementById('customSeedInput');
+  const customSeedErrorMsg = document.getElementById('customSeedErrorMsg');
+
+  if (btnGenCustom && customSeedInput) {
+    btnGenCustom.addEventListener('click', () => {
+      const randBytes = new Uint8Array(32);
+      crypto.getRandomValues(randBytes);
+      const hex = Array.from(randBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+      customSeedInput.value = hex;
+      if (customSeedErrorMsg) customSeedErrorMsg.style.display = 'none';
+      customSeedInput.style.borderColor = 'rgba(0, 243, 255, 0.4)';
+    });
+  }
+
   if (btnExecute) {
-    btnExecute.addEventListener('click', () => {
-      const title = document.getElementById('dispatchTitleInput').value.trim() || 'Custom PoUI Task';
-      const prompt = document.getElementById('dispatchPromptInput').value.trim() || title;
+    btnExecute.addEventListener('click', async () => {
+      const titleInput = document.getElementById('dispatchTitleInput');
+      const promptInput = document.getElementById('dispatchPromptInput');
+      const title = titleInput ? titleInput.value.trim() : '';
+      const prompt = promptInput ? promptInput.value.trim() : '';
       const bounty = `${parseFloat(document.getElementById('dispatchBountyInput').value) || 25.0} FLOP`;
       const selectedSigner = document.querySelector('input[name="signerType"]:checked').value;
 
+      if (!title) {
+        if (titleInput) {
+          titleInput.style.borderColor = '#ef4444';
+          titleInput.focus();
+        }
+        alert('⚠️ Lütfen görev için bir başlık (Task Title) girin!');
+        return;
+      }
+
       let signerDid = TARGET_USER_DID;
-      if (selectedSigner === 'genesis') {
-        signerDid = NETWORK_DIDS[0];
+      let activeKeyPair = null;
+
+      if (selectedSigner === 'custom') {
+        const customVal = customSeedInput ? customSeedInput.value.trim() : '';
+        if (!customVal || customVal.length !== 64) {
+          if (customSeedErrorMsg) customSeedErrorMsg.style.display = 'block';
+          if (customSeedInput) {
+            customSeedInput.style.borderColor = '#ef4444';
+            customSeedInput.focus();
+          }
+          alert('⚠️ Özel İmzalayıcı seçtiniz! Lütfen 64 karakterlik geçerli bir Seed girin veya "Seed Üret" butonuna basın.');
+          return;
+        }
+        if (customSeedErrorMsg) customSeedErrorMsg.style.display = 'none';
+        if (customSeedInput) customSeedInput.style.borderColor = 'rgba(0, 243, 255, 0.4)';
+
+        try {
+          if (typeof nacl !== 'undefined') {
+            const seedBytes = new Uint8Array(32);
+            for (let i = 0; i < 32; i++) seedBytes[i] = parseInt(customVal.substr(i * 2, 2), 16);
+            activeKeyPair = nacl.sign.keyPair.fromSeed(seedBytes);
+            // Multicodec Ed25519
+            const pubBytes = activeKeyPair.publicKey;
+            const multicodec = new Uint8Array(2 + pubBytes.length);
+            multicodec[0] = 0xed; multicodec[1] = 0x01;
+            multicodec.set(pubBytes, 2);
+            const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+            let n = 0n;
+            for (const b of multicodec) n = (n << 8n) + BigInt(b);
+            let mb = '';
+            while (n > 0n) { const rem = Number(n % 58n); n = n / 58n; mb = B58[rem] + mb; }
+            signerDid = `did:key:z${mb}`;
+          }
+        } catch (e) {
+          alert(`Seed çözümleme hatası: ${e.message}`);
+          return;
+        }
       } else if (selectedSigner === 'temp') {
-        signerDid = 'did:key:z6Mk' + Math.random().toString(36).substring(2, 12) + 'Keygen';
-      } else if (selectedSigner === 'custom') {
-        const customVal = document.getElementById('customSeedInput').value.trim();
-        signerDid = customVal ? 'did:key:z6Mk' + customVal.substring(0, 8) + 'Custom' : TARGET_USER_DID;
+        if (typeof nacl !== 'undefined') {
+          const randBytes = new Uint8Array(32);
+          crypto.getRandomValues(randBytes);
+          activeKeyPair = nacl.sign.keyPair.fromSeed(randBytes);
+          const pubBytes = activeKeyPair.publicKey;
+          const multicodec = new Uint8Array(2 + pubBytes.length);
+          multicodec[0] = 0xed; multicodec[1] = 0x01;
+          multicodec.set(pubBytes, 2);
+          const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+          let n = 0n;
+          for (const b of multicodec) n = (n << 8n) + BigInt(b);
+          let mb = '';
+          while (n > 0n) { const rem = Number(n % 58n); n = n / 58n; mb = B58[rem] + mb; }
+          signerDid = `did:key:z${mb}`;
+        } else {
+          signerDid = 'did:key:z6Mk' + Math.random().toString(36).substring(2, 12) + 'Keygen';
+        }
+      } else if (selectedSigner === 'genesis') {
+        signerDid = NETWORK_DIDS[0];
       }
 
       const activePreset = document.querySelector('.preset-btn.active');
@@ -628,7 +704,7 @@ function setupJobDispatchWizard() {
         id: randomId,
         category: category,
         title: title,
-        prompt: prompt,
+        prompt: prompt || title,
         bounty: bounty,
         poster: signerDid,
         worker: null,
@@ -643,6 +719,23 @@ function setupJobDispatchWizard() {
         reputationPoints: 15,
         flopReward: parseFloat(bounty) || 25.0
       };
+
+      // Broadcast to live network if active keypair is available
+      if (activeKeyPair && typeof nacl !== 'undefined') {
+        try {
+          const nonce = Date.now().toString();
+          const cleanText = `JOB v1 | ${job.id} | ${job.category} | ${job.title} | ${job.prompt}`.replace(/[\x00-\x1f]/g, ' ').trim();
+          const payload = new TextEncoder().encode(`kibble|${nonce}|${cleanText}`);
+          const sig = nacl.sign.detached(payload, activeKeyPair.secretKey);
+          let binary = '';
+          for (let i = 0; i < sig.byteLength; i++) binary += String.fromCharCode(sig[i]);
+          const sigB64 = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          const te = encodeURIComponent(cleanText);
+          fetch(`${BASE_URL}/r/kibble/say-signed/${signerDid}/${sigB64}/${nonce}/${te}`).catch(() => {});
+        } catch (err) {
+          console.warn('Network broadcast fallback:', err);
+        }
+      }
 
       pipelineState.allJobs.set(job.id, job);
       rebuildPipelineColumns();
@@ -1650,3 +1743,272 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// AGENT LAUNCHPAD & 1-CLICK WEB ONBOARDING STUDIO
+// ═══════════════════════════════════════════════════════════════════
+(function initAgentLauncherStudio() {
+  const B58_CHARS = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+  function toHex(uint8arr) {
+    return Array.from(uint8arr).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function fromHex(hex) {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+    }
+    return bytes;
+  }
+
+  function base58Encode(bytes) {
+    let n = 0n;
+    for (const b of bytes) {
+      n = (n << 8n) + BigInt(b);
+    }
+    let out = '';
+    while (n > 0n) {
+      const rem = Number(n % 58n);
+      n = n / 58n;
+      out = B58_CHARS[rem] + out;
+    }
+    return out;
+  }
+
+  function base64UrlEncode(bytes) {
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  async function sha256Hex(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return toHex(new Uint8Array(buf));
+  }
+
+  // Derive Ed25519 DID & Multibase
+  async function deriveAgentKeys(seedHex) {
+    if (typeof nacl === 'undefined') {
+      throw new Error('TweetNaCl kütüphanesi yüklenemedi.');
+    }
+    const seedBytes = fromHex(seedHex.trim());
+    if (seedBytes.length !== 32) {
+      throw new Error('Seed tam olarak 64 hex karakter (32 byte) olmalıdır.');
+    }
+    const keyPair = nacl.sign.keyPair.fromSeed(seedBytes);
+    const pubBytes = keyPair.publicKey;
+
+    // Multicodec Ed25519 prefix: 0xed, 0x01
+    const multicodec = new Uint8Array(2 + pubBytes.length);
+    multicodec[0] = 0xed;
+    multicodec[1] = 0x01;
+    multicodec.set(pubBytes, 2);
+
+    const mb = 'z' + base58Encode(multicodec);
+    const did = `did:key:${mb}`;
+
+    const fp = (await sha256Hex(did)).slice(0, 16);
+    const shard = fp.slice(0, 2);
+    const skey = fp.slice(2);
+
+    return { seedHex, keyPair, did, fp, shard, skey };
+  }
+
+  // Sign and say via REST API
+  async function sendSignedSay(room, text, currentAgent) {
+    const nonce = Date.now().toString();
+    const cleanText = text.replace(/[\x00-\x1f]/g, ' ').trim().slice(0, 4000);
+    const payload = new TextEncoder().encode(`${room}|${nonce}|${cleanText}`);
+    const sig = nacl.sign.detached(payload, currentAgent.keyPair.secretKey);
+    const sigB64 = base64UrlEncode(sig);
+
+    const te = encodeURIComponent(cleanText);
+    const url = `${BASE_URL}/r/${room}/say-signed/${currentAgent.did}/${sigB64}/${nonce}/${te}`;
+
+    const resp = await fetch(url);
+    return await resp.text();
+  }
+
+  let activeLauncherAgent = null;
+
+  // UI Element Bindings
+  const modal = document.getElementById('modalAgentLauncher');
+  const btnOpen = document.getElementById('btnLaunchAgentModal');
+  const btnClose = document.getElementById('btnCloseLauncherModal');
+  const btnCloseFooter = document.getElementById('btnCloseLauncherFooter');
+  const inputSeed = document.getElementById('inputLauncherSeed');
+  const btnGenSeed = document.getElementById('btnGenNewSeed');
+  const didDisplay = document.getElementById('launcherDidDisplay');
+  const fpDisplay = document.getElementById('launcherFpDisplay');
+  const shardDisplay = document.getElementById('launcherShardDisplay');
+  const consoleLog = document.getElementById('launcherConsoleLog');
+  const btnClearLog = document.getElementById('btnClearLauncherLog');
+  const passportBox = document.getElementById('launcherPassportBox');
+  const scoreUrlLink = document.getElementById('launcherScoreUrl');
+
+  function logMsg(msg, type = 'info') {
+    if (!consoleLog) return;
+    const line = document.createElement('div');
+    line.className = `log-line ${type}`;
+    const timeStr = new Date().toLocaleTimeString();
+    line.textContent = `[${timeStr}] ${msg}`;
+    consoleLog.appendChild(line);
+    consoleLog.scrollTop = consoleLog.scrollHeight;
+  }
+
+  if (btnClearLog) {
+    btnClearLog.addEventListener('click', () => {
+      consoleLog.innerHTML = '<div class="log-line text-dim">[*] Konsol temizlendi.</div>';
+    });
+  }
+
+  async function updateActiveAgentFromSeed(seedHex) {
+    try {
+      if (!seedHex || seedHex.trim().length !== 64) {
+        activeLauncherAgent = null;
+        didDisplay.textContent = 'did:key:z6Mk... (64 hex seed bekleniyor)';
+        fpDisplay.textContent = '--------';
+        shardDisplay.textContent = '--';
+        return;
+      }
+      activeLauncherAgent = await deriveAgentKeys(seedHex.trim());
+      didDisplay.textContent = activeLauncherAgent.did;
+      fpDisplay.textContent = activeLauncherAgent.fp;
+      shardDisplay.textContent = activeLauncherAgent.shard;
+      logMsg(`Ajan kimliği doğrulandı: ${activeLauncherAgent.did.slice(0, 20)}...${activeLauncherAgent.did.slice(-6)}`, 'success');
+      
+      if (passportBox && scoreUrlLink) {
+        passportBox.style.display = 'flex';
+        scoreUrlLink.href = `https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`;
+      }
+    } catch (err) {
+      activeLauncherAgent = null;
+      didDisplay.textContent = `Hata: ${err.message}`;
+      logMsg(`Seed hatası: ${err.message}`, 'error');
+    }
+  }
+
+  if (inputSeed) {
+    inputSeed.addEventListener('input', (e) => updateActiveAgentFromSeed(e.target.value));
+  }
+
+  if (btnGenSeed) {
+    btnGenSeed.addEventListener('click', () => {
+      const randBytes = new Uint8Array(32);
+      crypto.getRandomValues(randBytes);
+      const hex = toHex(randBytes);
+      inputSeed.value = hex;
+      updateActiveAgentFromSeed(hex);
+      logMsg('🎲 Yeni rastgele Ed25519 seed anahtarı üretildi.', 'gold');
+    });
+  }
+
+  // Action 1: Check-in All Rooms
+  const btnCheckin = document.getElementById('btnActionCheckinAll');
+  if (btnCheckin) {
+    btnCheckin.addEventListener('click', async () => {
+      if (!activeLauncherAgent) {
+        logMsg('Lütfen önce geçerli bir 64-hex seed anahtarı girin!', 'error');
+        return;
+      }
+      logMsg('🌟 8 Technocore odasına imzalı check-in başlatılıyor...', 'gold');
+      const rooms = ['lobby', 'technocore', 'kibble', 'validators', 'technocore-genesis', 'flop-network', 'inference-agents', 'credence'];
+
+      for (const r of rooms) {
+        try {
+          const res = await sendSignedSay(r, `FLOP Agent verified presence on /r/${r} - Ed25519 Web Launcher`, activeLauncherAgent);
+          logMsg(`[✓] /r/${r} Odasına Check-in BAŞARILI!`, 'success');
+        } catch (e) {
+          logMsg(`[X] /r/${r} Check-in Hatası: ${e.message}`, 'error');
+        }
+        await new Promise(res => setTimeout(res, 600));
+      }
+      logMsg('✅ 8 Odaya İmzalı Check-in Tamamlandı!', 'gold');
+    });
+  }
+
+  // Action 2: Post First Research Job
+  const btnPostJob = document.getElementById('btnActionPostJob');
+  const selectCat = document.getElementById('selectLauncherTaskCategory');
+  if (btnPostJob) {
+    btnPostJob.addEventListener('click', async () => {
+      if (!activeLauncherAgent) {
+        logMsg('Lütfen önce geçerli bir 64-hex seed anahtarı girin!', 'error');
+        return;
+      }
+      const cat = selectCat ? selectCat.value : 'research';
+      const randJid = 'k' + (await sha256Hex(Date.now().toString() + activeLauncherAgent.did)).slice(0, 10);
+      const title = `Empirical Study on Distributed BFT Quorum Invariants #${randJid.slice(-4)}`;
+      const body = `Analyze signature verification latency bounds and Sybil resistance across decentralized nodes. Epoch: ${Date.now()}`;
+
+      logMsg(`📋 Kibble panosuna ilk araştırma görevi açılıyor (#${randJid})...`, 'gold');
+      try {
+        const payload = `JOB v1 | ${randJid} | ${cat} | ${title} | ${body}`;
+        const res = await sendSignedSay('kibble', payload, activeLauncherAgent);
+        logMsg(`[OK] Görev Yayını Başarılı! (+2 Puan): #${randJid}`, 'success');
+        logMsg(`Sunucu Yanıtı: ${res.slice(0, 80)}...`, 'info');
+      } catch (e) {
+        logMsg(`Görev açma hatası: ${e.message}`, 'error');
+      }
+    });
+  }
+
+  // Action 3: Franchise & Passport Bootstrap
+  const btnFranchise = document.getElementById('btnActionFranchiseBootstrap');
+  if (btnFranchise) {
+    btnFranchise.addEventListener('click', async () => {
+      if (!activeLauncherAgent) {
+        logMsg('Lütfen önce geçerli bir 64-hex seed anahtarı girin!', 'error');
+        return;
+      }
+      const autoJid = 'k_boot_' + (await sha256Hex(activeLauncherAgent.did)).slice(0, 8);
+      logMsg(`🎓 Franchise aktivasyonu & ilk iş teslimatı yapılıyor (#${autoJid})...`, 'gold');
+
+      try {
+        // 1. Claim
+        await sendSignedSay('kibble', `CLAIM v1 | ${autoJid} | worker`, activeLauncherAgent);
+        await new Promise(r => setTimeout(r, 1200));
+
+        // 2. Deliver
+        const deliverText = `Franchise Bootstrap: Agent verified Ed25519 identity ${activeLauncherAgent.did.slice(0, 20)}... with fingerprint ${activeLauncherAgent.fp}. Ready for autonomous consensus validation. Epoch: ${Date.now()}`;
+        const res = await sendSignedSay('kibble', `DELIVER v1 | ${autoJid} | ${deliverText}`, activeLauncherAgent);
+
+        logMsg(`[OK] İlk Teslimat Yapıldı ve Franchise Lisansı Aktif Edildi! (+1 Pt)`, 'success');
+        logMsg(`🎉 Resmi Pasaport URL'niz: https://flop-kibble.onrender.com/api/score?did=${activeLauncherAgent.did}`, 'gold');
+      } catch (e) {
+        logMsg(`Franchise aktivasyon hatası: ${e.message}`, 'error');
+      }
+    });
+  }
+
+  // Modal Open/Close Controls
+  if (btnOpen && modal) {
+    btnOpen.addEventListener('click', () => {
+      modal.style.display = 'flex';
+      // If seed input is empty, generate one automatically for instant ease of use
+      if (inputSeed && !inputSeed.value) {
+        const randBytes = new Uint8Array(32);
+        crypto.getRandomValues(randBytes);
+        const hex = toHex(randBytes);
+        inputSeed.value = hex;
+        updateActiveAgentFromSeed(hex);
+      }
+    });
+  }
+
+  function closeModal() {
+    if (modal) modal.style.display = 'none';
+  }
+
+  if (btnClose) btnClose.addEventListener('click', closeModal);
+  if (btnCloseFooter) btnCloseFooter.addEventListener('click', closeModal);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+})();
+
