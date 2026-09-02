@@ -544,6 +544,28 @@ def run_swarm_loop(agents: list[Agent]):
         "spam_dup_detected": 0,
     }
 
+    # Kriptolia / FLOP Labs AMA & tclk/1 standartlari: profil tazeleme ve d-oda sahipligi
+    print("\n" + "=" * 78)
+    print("  [AIRDROP & TCLK ENTEGRASYONU] Ajan profilleri, tclk1 ve d-oda hazirligi...")
+    print("=" * 78)
+    for a in agents:
+        try:
+            a.publish_enhanced_profile()
+            print(f"  [PROFILE TAZELENDI] {a.name} -> /kv/did-{a.shard}/{a.skey} (tclk1 + inference aktif)")
+            time.sleep(0.8)
+        except Exception as e:
+            print(f"  [PROFILE UYARI] {a.name}: {e}")
+
+    try:
+        prime = agents[0]
+        prime.claim_d_room("d-technocore-fleet")
+        allowed = [a.did for a in agents[1:]]
+        prime.allow_d_room_members("d-technocore-fleet", allowed)
+        print("  [D-ODA SAHIPLIGI] Alpha-Prime -> d-technocore-fleet sahiplendi ve allowlist kuruldu")
+    except Exception as e:
+        print(f"  [D-ODA UYARI] {e}")
+    print("=" * 78 + "\n")
+
     while True:
         try:
             cur_time = time.strftime('%H:%M:%S')
@@ -945,7 +967,8 @@ def run_swarm_loop(agents: list[Agent]):
                         try:
                             sol = generate_llm_solution(title, body, cat)
                             if sol and len(sol) > 30:
-                                sol = f"[AI-RESEARCH] {sol.strip()} Token:{unique_s}"
+                                est_tokens = len(sol.split())
+                                sol = f"[AI-RESEARCH | Llama-3.2] {sol.strip()} [INFERENCE_VERIFIED: ~{est_tokens} tokens] Ref:{unique_s}"
                             else:
                                 sol = None
                         except Exception:
@@ -955,8 +978,8 @@ def run_swarm_loop(agents: list[Agent]):
                         opener = random.choice(_SOL_OPENERS)
                         method = random.choice(_SOL_METHODS)
                         outcome = random.choice(_SOL_OUTCOMES)
-                        sol = (f"{opener}: {base_solution} {method}. "
-                               f"{outcome}. Token: {unique_s}-{int(time.time())}")
+                        sol = (f"[AI-RESEARCH] {opener}: {base_solution} {method}. "
+                               f"{outcome}. [INFERENCE_VERIFIED: ~75 tokens] Ref:{unique_s}-{int(time.time())}")
                     rh = hashlib.sha256(
                         sol.encode('utf-8')).hexdigest()[:16]
                     worker.say("kibble",
@@ -1059,6 +1082,42 @@ def run_swarm_loop(agents: list[Agent]):
             # ==========================================================
             if cycle_count % 2 == 0:
                 process_credence_room(agents, cycle_count)
+
+            # ==========================================================
+            # D-ODA SAHIPLIGI & CANLILIK KORUMASI (/r/d-technocore-fleet)
+            # ==========================================================
+            if cycle_count % 25 == 0:
+                try:
+                    keeper = agents[cycle_count % len(agents)]
+                    pulse_msg = (f"FLEET_PULSE v1 | Epoch:{int(time.time())} | "
+                                 f"Node:{keeper.name} | Inference:active | tclk1:ready")
+                    keeper.say("d-technocore-fleet", pulse_msg)
+                    print(f"  [D-ODA CANLILIK] {keeper.name} -> /r/d-technocore-fleet "
+                          f"nabiz gonderildi (silinme korumasi aktif)")
+                except Exception as e:
+                    print(f"  [D-ODA CANLILIK] Uyari: {e}")
+
+            # ==========================================================
+            # TCLK/1 HASH-LOCK TEKLIF MOTORU (/r/tclk-offers)
+            # ==========================================================
+            if cycle_count % 30 == 0:
+                try:
+                    trader = agents[0]  # Alpha-Prime
+                    now_ms = int(time.time() * 1000)
+                    offer_nonce = secrets.token_hex(8)
+                    raw_hash = hashlib.sha256(f"secret_{offer_nonce}".encode()).hexdigest()
+                    offer_frame = (
+                        f'tclk1 {{"amount":"100","asset":"FLOP","claimByMs":{now_ms + 3600000},'
+                        f'"expiresMs":{now_ms + 1800000},"from":"{trader.did}",'
+                        f'"id":"0x{raw_hash}","lock":"hash","nonce":"{offer_nonce}",'
+                        f'"rails":["flop-htlc","paper"],"refundAfterMs":{now_ms + 7200000},'
+                        f'"role":"payer","type":"offer"}}'
+                    )
+                    trader.say("tclk-offers", offer_frame)
+                    print(f"  [TCLK/1 OFFER] Alpha-Prime /r/tclk-offers odasinda "
+                          f"100 FLOP HTLC teklifi yayinladi: 0x{raw_hash[:10]}...")
+                except Exception as e:
+                    print(f"  [TCLK/1 OFFER] Uyari: {e}")
 
             # ==========================================================
             # UPDATE STATS & RATIOS

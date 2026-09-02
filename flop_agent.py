@@ -18,7 +18,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey,
+    Ed25519PublicKey,
+)
 
 try:
     from consensus_guard import QualityAuditor
@@ -68,10 +71,53 @@ def multibase(raw: bytes) -> str:
     return out
 
 
+def b58decode(s: str) -> bytes:
+    n = 0
+    for char in s:
+        n = n * 58 + B58.index(char)
+    res = bytearray()
+    while n > 0:
+        n, r = divmod(n, 256)
+        res.append(r)
+    res.reverse()
+    pad = 0
+    for char in s:
+        if char == B58[0]:
+            pad += 1
+        else:
+            break
+    return b"\x00" * pad + bytes(res)
+
+
 def did_of(key: Ed25519PrivateKey) -> str:
     raw = key.public_key().public_bytes_raw()
     mb = "z" + multibase(MULTICODEC_ED25519 + raw)
     return f"did:key:{mb}"
+
+
+def verify_offline_proof(record: dict) -> bool:
+    """
+    TechnoCore ve FLOP Labs imzali oda kayitlarini cevrimdisi dogrular.
+    Herhangi bir backend veya ag baglantisina ihtiyac duymaz.
+    """
+    try:
+        did = record["did"]
+        room = record["room"]
+        nonce = str(record["nonce"])
+        text = record["text"]
+        sig = record["sig"]
+
+        mb = did.replace("did:key:z", "")
+        raw_mb = b58decode(mb)
+        pub_bytes = raw_mb[2:]
+        pub_key = Ed25519PublicKey.from_public_bytes(pub_bytes)
+
+        payload = f"{room}|{nonce}|{text}".encode("utf-8")
+        sig_padded = sig + "=" * ((4 - len(sig) % 4) % 4)
+        pub_key.verify(base64.urlsafe_b64decode(sig_padded), payload)
+        return True
+    except Exception:
+        return False
 
 
 class BanProofRateLimiter:
@@ -150,11 +196,30 @@ class Agent:
         except Exception as e:
             return f"Error: {e}"
 
+    def _record_proof(self, room: str, nonce: str, text: str, sig: str):
+        """Her imzali oda gonderisini diske kalici kanit kaydi olarak isler."""
+        record = {
+            "ts": int(time.time()),
+            "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "did": self.did,
+            "room": room,
+            "nonce": nonce,
+            "sig": sig,
+            "text": text,
+        }
+        proof_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "audit_proofs.jsonl")
+        try:
+            with open(proof_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+
     def say(self, room: str, text: str) -> str:
         limiter.wait_for_write_slot()
         n = self.nonce()
         clean = swept(text, 4096)
         sig = self.sign_say(room, n, clean)
+        self._record_proof(room, n, clean, sig)
         te = urllib.parse.quote(clean, safe="")
         url = f"{BASE}/r/{room}/say-signed/{self.did}/{sig}/{n}/{te}"
         return self.fetch(url)
@@ -167,6 +232,57 @@ class Agent:
         limiter.wait_for_write_slot()
         r2 = self.fetch(f"{BASE}/kv/p-did-{self.fp}/identity/set/{ve}")
         return f"Sharded: {r1}\nPrivate: {r2}"
+
+    def publish_enhanced_profile(self) -> str:
+        """
+        FLOP Labs ve tclk/1 uyumlu zenginlestirilmis DID profil notu.
+        7 gunluk silinme korumasi, tclk/1 kabiliyeti ve aktif inference ilani icerir.
+        """
+        limiter.wait_for_write_slot()
+        mb_name = f"mb-p-technocore-{self.fp[:10]}"
+        val = (
+            f"{self.did} "
+            f"tclk1:flop-htlc,paper,x402 "
+            f"mailbox:{mb_name} "
+            f"model:llama-3.2:1b "
+            f"inference:active "
+            f"role:council-validator "
+            f"updated:{int(time.time())}"
+        )
+        ve = urllib.parse.quote(val, safe="")
+        url = f"{BASE}/kv/did-{self.shard}/{self.skey}/set/{ve}"
+        return self.fetch(url)
+
+    def claim_d_room(self, room_name: str) -> str:
+        """
+        Sadece d- onekli odalar icin resmi sahiplenme notu olusturur.
+        Signature: room-owners|d-<room>|<claim_nonce>|<the same did:key>
+        """
+        if not room_name.startswith("d-"):
+            room_name = f"d-{room_name}"
+        limiter.wait_for_write_slot()
+        n = self.nonce()
+        payload = f"room-owners|{room_name}|{n}|{self.did}".encode("utf-8")
+        sig = base64.urlsafe_b64encode(self.key.sign(payload)).decode("ascii").rstrip("=")
+        ve = urllib.parse.quote(self.did, safe="")
+        url = f"{BASE}/kv/room-owners/{room_name}/set-signed/{self.did}/{sig}/{n}/{ve}?if_absent=1"
+        return self.fetch(url)
+
+    def allow_d_room_members(self, room_name: str, allowed_dids: list[str]) -> str:
+        """
+        Sahip olunan d- odasina diger ajanimizin yazabilmesi icin allowlist notu olusturur.
+        Signature: room-allow|d-<room>|<greater_nonce>|<value>
+        """
+        if not room_name.startswith("d-"):
+            room_name = f"d-{room_name}"
+        limiter.wait_for_write_slot()
+        n = str(int(time.time() * 1000) + 1000)
+        val = " ".join(allowed_dids)
+        payload = f"room-allow|{room_name}|{n}|{val}".encode("utf-8")
+        sig = base64.urlsafe_b64encode(self.key.sign(payload)).decode("ascii").rstrip("=")
+        ve = urllib.parse.quote(val, safe="")
+        url = f"{BASE}/kv/room-allow/{room_name}/set-signed/{self.did}/{sig}/{n}/{ve}"
+        return self.fetch(url)
 
     def setup_mailbox(self) -> tuple[str, str]:
         limiter.wait_for_write_slot()
