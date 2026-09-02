@@ -544,8 +544,8 @@ def run_swarm_loop(agents: list[Agent]):
         "spam_dup_detected": 0,
     }
 
-    try:
-        while True:
+    while True:
+        try:
             cur_time = time.strftime('%H:%M:%S')
 
             # == CHECK NFT MINT QUEUE (Dashboard -> Engine bridge) ==
@@ -1125,20 +1125,24 @@ def run_swarm_loop(agents: list[Agent]):
                 f"Sonraki: {wait_s:.1f}s\n")
             time.sleep(wait_s)
 
-    except KeyboardInterrupt:
-        pair_tracker.save_state()
-        franchise_mgr.save_state()
-        print(f"\n[!] Konsensus Motoru durduruldu.")
-        print(f"    Toplam Dongu: {cycle_count-1}")
-        print(f"    Dis Isler: {session_stats['external_jobs_solved']}")
-        print(f"    Not Verdicts: {session_stats['not_verdicts']}")
-        print(f"    Quorum Kararlar: {session_stats['quorum_decisions']}")
-        print(f"      Oybirigi: {session_stats['quorum_unanimous']}")
-        print(f"      Bolunmus: {session_stats['quorum_split']}")
-        print(f"    Spam Avlanan: {session_stats['spam_hunted']}")
-        print(f"    Pair Cap Bloklari: {session_stats['pair_cap_blocks']}")
-        print(f"    NFT Mint: {session_stats['nft_mints_processed']}")
-        save_hegemon_state(protocol, session_stats)
+        except KeyboardInterrupt:
+            pair_tracker.save_state()
+            franchise_mgr.save_state()
+            print(f"\n[!] Konsensus Motoru durduruldu.")
+            print(f"    Toplam Dongu: {cycle_count-1}")
+            print(f"    Dis Isler: {session_stats['external_jobs_solved']}")
+            print(f"    Not Verdicts: {session_stats['not_verdicts']}")
+            print(f"    Quorum Kararlar: {session_stats['quorum_decisions']}")
+            print(f"      Oybirigi: {session_stats['quorum_unanimous']}")
+            print(f"      Bolunmus: {session_stats['quorum_split']}")
+            print(f"    Spam Avlanan: {session_stats['spam_hunted']}")
+            print(f"    Pair Cap Bloklari: {session_stats['pair_cap_blocks']}")
+            print(f"    NFT Mint: {session_stats['nft_mints_processed']}")
+            save_hegemon_state(protocol, session_stats)
+            break
+        except Exception as cycle_err:
+            print(f"\n  [!] Dongu #{cycle_count} gecici ag/islem uyarisi (otomatik toparlaniyor): {cycle_err}")
+            time.sleep(random.uniform(4.0, 6.0))
 
 
 if __name__ == "__main__":
