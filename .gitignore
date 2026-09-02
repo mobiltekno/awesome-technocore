@@ -1,5 +1,5 @@
 .env
-swarm_seeds.json
+swarm_seeds*.json
 SWARM_WALLETS.md
 AGENT_INFO.md
 *.log
