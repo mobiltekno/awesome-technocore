@@ -1,0 +1,122 @@
+[
+  {
+    "index": 1,
+    "name": "Alpha-Prime (Lider)",
+    "seed": "1309952b6e10ac395fd8aaa835f9b5b29b4ee373f5645d978823b7143c2ffe0e",
+    "did": "did:key:z6MknDn3CH7vumHw5rXREhdQN5KjsSp2RWi4aUHusBDRVoRz",
+    "fp": "141c846eef7371c9",
+    "role": "Master Orchestrator"
+  },
+  {
+    "index": 2,
+    "name": "Agent-Node-02",
+    "seed": "e2455b76734f207feac673bfe512c430982c7a9780d15a88ea84a87ffaa4e837",
+    "did": "did:key:z6Mkw1wmdRVLPScoJx1wczCcrs9ggFEufgAqK5gLusm9c7Bq",
+    "fp": "724c689175f913e9",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 3,
+    "name": "Agent-Node-03",
+    "seed": "36494c1195a61731ee4b6a0e6eb3174f33d2b2a904afbeeda826ac017da7e43a",
+    "did": "did:key:z6Mkoxggbhq8Hv1Us2zhrvGt1SFRsMzaFezVuZpNGzDnKf3u",
+    "fp": "db21fa8661d83db1",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 4,
+    "name": "Agent-Node-04",
+    "seed": "35c8b8609a05e875ce05c76525f50a39b074f06ddfed2fafe004338a7cc68bce",
+    "did": "did:key:z6MkvYoXPa8dJH8Zd3u5LHwZME4p9SXtYQK9b9VrUYBiHJdi",
+    "fp": "d38b9a7b50430a92",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 5,
+    "name": "Agent-Node-05",
+    "seed": "01b00bba20fcb4c02cf415c0073e83b0f6100438c6ab14eb649b5816f19200ac",
+    "did": "did:key:z6Mku9ADH3QQPFVA4by9jkAojHRrCsiTLk2iHi3ubN7jCRvH",
+    "fp": "3cebfbe9db72062f",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 6,
+    "name": "Agent-Node-06",
+    "seed": "8b621e8498b988a64fe40005f364af8ce7eaa320d2920437f466d3a61efb7316",
+    "did": "did:key:z6MkqWE7hmkcDereCvbKrhFD9yfor1R6ErjtXPMWaotvvmyH",
+    "fp": "a469d95364ed7864",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 7,
+    "name": "Agent-Node-07",
+    "seed": "c88603e8d83f591b409f7ff2a10d16e4b0a0c662cce2b2771dc76e5fd5dc73d3",
+    "did": "did:key:z6Mkooe8rBBhWsVjjbzuZSNLM5bK21svUdpatqdPe8fZYrkB",
+    "fp": "2dbe8691c446de63",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 8,
+    "name": "Agent-Node-08",
+    "seed": "d6dd26cc6606ae22164b7743e034bdbdb34b4bf70b50ba60e62309b8fcada816",
+    "did": "did:key:z6MkhHAxBuu91hxCKNXjbFAmR3sTEJChuJMkS7ckyf7JdZZA",
+    "fp": "e1b1048a670f4bbc",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 9,
+    "name": "Agent-Node-09",
+    "seed": "f264d36410a71e7adf9960d7085241cf6cd439e0528d1a0ff943a8393b31f9ee",
+    "did": "did:key:z6MkmHH9BJ6b9Th86Dm6yZgHtrtvqiM6H8Xm7e37Lops8gcZ",
+    "fp": "aa0f0de16d6ff925",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 10,
+    "name": "Agent-Node-10",
+    "seed": "5b3118925b1323a187483526848506a398a16440ac47970325748ac5d31b7970",
+    "did": "did:key:z6MkrN6gYytVn7NdKW2pYaNcC2EXpBn3L658EE1iR8TnL9nx",
+    "fp": "c1ad944c1b7b6f2d",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 11,
+    "name": "Agent-Node-11",
+    "seed": "0e1739c9edd2511d15846b515df4fa4ea19fc2c2d23726d22401f047f463eeea",
+    "did": "did:key:z6MkrNu5u77aEvZGVpU4y5ZVFTaVHvBm6Sj4dQMyqjv8UCQ8",
+    "fp": "8346587af8e4ed48",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 12,
+    "name": "Agent-Node-12",
+    "seed": "2a2a0c3ceb3d1881a1b3619ac7b56a4f3c026b535ffcd44a52203a4e21935faa",
+    "did": "did:key:z6MkebhB9ym34D74by9U4co2oWh8wmq35Loevbyh7xZQNXK7",
+    "fp": "8841c33371e5701a",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 13,
+    "name": "Agent-Node-13",
+    "seed": "3824a09bf03d2163be62e339ba0708df903050afaae9b1bc4fe6169be0867408",
+    "did": "did:key:z6MkfEw2G1qrv9c4KfFyhKZGgL9N4T6oaVbeYknkXfarFaNT",
+    "fp": "c93582a6351a031b",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 14,
+    "name": "Agent-Node-14",
+    "seed": "9a776a8f8ca4a3d150cd41a1361f7e7ecb514067248002be0ac2720381bdcbe8",
+    "did": "did:key:z6Mkt6qKy9pz5Axg1QsR4TdA8wwDt6rBLTmsMQcRNTbEPYJC",
+    "fp": "f9ef72ea6be278c1",
+    "role": "Validator & Worker Node"
+  },
+  {
+    "index": 15,
+    "name": "Agent-Node-15",
+    "seed": "836042b6aae68751aa5e7d910049c5371ef4753da451b5a8419f3ff96380df50",
+    "did": "did:key:z6Mki7jUSAFcUBbrk21NiWZV2QAfUmg8ZBJk8tKCMnB3GhSv",
+    "fp": "eee97f0de71e3d39",
+    "role": "Validator & Worker Node"
+  }
+]

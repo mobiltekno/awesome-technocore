@@ -50,26 +50,38 @@ TRUSTED_DID_PREFIXES = [          # Bilinen güvenilir DID prefix'leri
     "z6Mkoxgg",                   # Agent-Node-03
     "z6MkvYoX",                   # Agent-Node-04
     "z6Mku9AD",                   # Agent-Node-05
+    "z6MkqWE7",                   # Agent-Node-06
+    "z6Mkooe8",                   # Agent-Node-07
+    "z6MkhHAx",                   # Agent-Node-08
+    "z6MkmHH9",                   # Agent-Node-09
+    "z6MkrN6g",                   # Agent-Node-10
+    "z6MkrNu5",                   # Agent-Node-11
+    "z6MkebhB",                   # Agent-Node-12
+    "z6MkfEw2",                   # Agent-Node-13
+    "z6Mkt6qK",                   # Agent-Node-14
+    "z6Mki7jU",                   # Agent-Node-15
 ]
 
 ALLIED_DIDS_FILE = os.path.join(STATE_DIR, "allied_dids.json")
+SWARM_SEEDS_FILE = os.path.join(STATE_DIR, "swarm_seeds.json")
 
 
 def get_allied_dids() -> set[str]:
-    """allied_dids.json dosyasından dost/müttefik ajan DID'lerini okur."""
+    """allied_dids.json ve swarm_seeds.json dosyalarından tüm filo ajanlarını okur."""
     allies = set()
-    if os.path.exists(ALLIED_DIDS_FILE):
-        try:
-            with open(ALLIED_DIDS_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if isinstance(data, list):
-                    for item in data:
-                        if isinstance(item, dict) and "did" in item:
-                            allies.add(item["did"].strip())
-                        elif isinstance(item, str):
-                            allies.add(item.strip())
-        except Exception:
-            pass
+    for fpath in [ALLIED_DIDS_FILE, SWARM_SEEDS_FILE]:
+        if os.path.exists(fpath):
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        for item in data:
+                            if isinstance(item, dict) and "did" in item:
+                                allies.add(item["did"].strip())
+                            elif isinstance(item, str):
+                                allies.add(item.strip())
+            except Exception:
+                pass
     return allies
 
 # ── Quorum Constants ─────────────────────────────────────────────────

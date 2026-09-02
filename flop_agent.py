@@ -184,7 +184,7 @@ class Agent:
     def fetch(self, url: str) -> str:
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "TechnocoreAgent/1.0"})
-            with urllib.request.urlopen(req, timeout=25) as resp:
+            with urllib.request.urlopen(req, timeout=10) as resp:
                 return resp.read().decode("utf-8", errors="replace")
         except urllib.error.HTTPError as e:
             if e.code == 429:
